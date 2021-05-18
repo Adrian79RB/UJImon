@@ -5,5 +5,6 @@ enum class Type {
     WATER,
     PLANT,
     DARKNESS,
-    GROUND
+    GROUND,
+    NORMAL
 }

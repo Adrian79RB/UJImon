@@ -7,6 +7,7 @@ import es.uji.vj1229.framework.TouchHandler
 
 class UjimonController(val width : Int,
                         val heightSpan : Int, val contex : Context) : IGameController {
+
     override fun onUpdate(deltaTime: Float, touchEvents: MutableList<TouchHandler.TouchEvent>?) {
         TODO("Not yet implemented")
     }

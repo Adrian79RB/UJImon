@@ -1,6 +1,7 @@
 package es.uji.al385729.ujimon.Model
 
 import android.widget.TextView
+import es.uji.al385729.ujimon.Assets
 
 class UjimonModel(val playerTrainer : Trainer, val enemyTrainer1 : Trainer, val enemyTrainer2: Trainer, val enemyTrainer3 : Trainer, val soundPlayer : SoundPlayer) {
 
@@ -30,5 +31,51 @@ class UjimonModel(val playerTrainer : Trainer, val enemyTrainer1 : Trainer, val 
     fun changeModelState(newState : UjimonState) {
         lastState = state
         state = newState
+    }
+
+    fun initializeAttacks(){
+        //Habra que meterlas en array supongo
+        //Type fire
+        var atkMagmaRiver = Attack("MagmaRiver", Type.FIRE, 400f, 1f);
+        var atkDragonBreath = Attack("Dragon breath", Type.FIRE, 300f, 2f)
+        var atkFlamethrower = Attack("Flamethrower", Type.FIRE, 200f, 3f)
+        var atkBurningFist = Attack("Burning fist", Type.FIRE, 150f, 7f)
+        var atkLashOfFire = Attack("LashOfFire", Type.FIRE, 150f, 7f)
+        var atkRainOfFire = Attack("Rain of fire", Type.FIRE, 100f, 15f)//Si hacemos estado alterados este podria quemar
+        var atkSteam = Attack("Steam", Type.FIRE, 100f, 15f)
+        var atkBlaze = Attack("Blaze", Type.FIRE, 100f, 15f);
+        var atkFireDart = Attack("Fire dart", Type.FIRE, 75f, 20f);
+        var atkSparks = Attack("Sparks", Type.FIRE, 50f, 40f)
+
+        //Type Darknes
+        var atkPrayToTheDarkGod = Attack("Pray to the dark god", Type.DARKNESS, 400f, 1f)
+        var atkNightmare = Attack("Nightmare", Type.DARKNESS, 300f, 2f)
+        var atkSpiritualBeheading = Attack("Spiritual Beheading", Type.DARKNESS, 200f, 3f)
+        var atkPainfulIllusion = Attack("Painful Illusion", Type.DARKNESS, 150f, 7f)
+        var atkSoulCrusher  = Attack("Soul Crusher", Type.DARKNESS, 150f, 7f)
+        var atkCloakOfDarkness = Attack("Cloak of darkness", Type.DARKNESS, 100f, 15f)
+        var atkSpectralStabbing = Attack("Spectral stabbing", Type.DARKNESS, 100f, 15f)
+        var atkCursedInfection = Attack("Cursed infection", Type.DARKNESS,100f, 15f)
+        var atkFear = Attack("Fear", Type.DARKNESS, 75f, 20f)
+        var atkCurse : Attack = Attack("Curse", Type.DARKNESS, 50f, 40f)
+
+        //Type Water
+        var atkTsunami = Attack("Tsunami", Type.WATER, 400f, 1f)
+        var atkStorm = Attack("Storm", Type.WATER, 300f, 2f)
+        var atkDrowning = Attack("Drowning", Type.WATER, 200f, 3f)
+        var atkWaterPrison = Attack("Water prison", Type.WATER, 150f, 7f)
+        var atkWhirlwind = Attack("Whirlwind", Type.WATER, 150f, 7f)
+        var atkWatergun = Attack("Watergun", Type.WATER, 100f, 15f)
+        var atkDehydrate = Attack("Dehydrate", Type.WATER, 100f, 15f)
+        var atkAcidRain = Attack("Acid rain", Type.WATER, 100f, 15f)
+        var atkRagingWave = Attack("Raging Wave", Type.WATER, 75f, 20f)
+        var atkBubbles = Attack("Bubbles", Type.WATER, 50f, 40f)
+    }
+
+    fun initializeUjimon(){
+        var maglugInstance : Ujimon = Ujimon(1000f,"Maglug", Assets.maglugAsset, false, Type.FIRE)
+        var obshoInstance : Ujimon = Ujimon(1000f, "Obsho", Assets.obshoAsset, false, Type.DARKNESS)
+        var redashInstance : Ujimon = Ujimon(1000f, "Redash", Assets.redashAsset, false, Type.PLANT);
+        var sworsthInstance : Ujimon = Ujimon(1000f, "Sworsth", Assets.sworsthAsset, false, Type.DARKNESS);
     }
 }

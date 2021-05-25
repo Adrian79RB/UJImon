@@ -27,6 +27,7 @@ class UjimonModel(val playerTrainer : Trainer, val enemyTrainer1 : Trainer, val 
 
     var state = UjimonState.UJIMON_SELECTION
     var lastState = UjimonState.UJIMON_SELECTION
+    val ujimonInstances = UjimonInstances()
 
     fun changeModelState(newState : UjimonState) {
         lastState = state

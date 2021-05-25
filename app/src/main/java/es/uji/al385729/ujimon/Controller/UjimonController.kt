@@ -4,10 +4,8 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.media.SoundPool
-import es.uji.al385729.ujimon.Model.Trainer
-import es.uji.al385729.ujimon.Model.Type
-import es.uji.al385729.ujimon.Model.Ujimon
-import es.uji.al385729.ujimon.Model.UjimonModel
+import es.uji.al385729.ujimon.Assets
+import es.uji.al385729.ujimon.Model.*
 import es.uji.vj1229.framework.Graphics
 import es.uji.vj1229.framework.IGameController
 import es.uji.vj1229.framework.TouchHandler
@@ -42,9 +40,11 @@ class UjimonController(val width : Int,
     private val buttonStartColumnInt = 2
     private val buttonStartRow = 2 * cellSide + yOffset
     private val buttonStartRowInt = 2
-    private val ujimonToChoose = Array<Ujimon>(10) { Ujimon(0f, "", null, true, Type.NORMAL) }
+    private val buttonStartSecondRow = 7 * cellSide + yOffset
+    private val buttonStartSecondRowInt = 7
 
     val playerTrainer = Trainer()
+    var playerTeamIndex = 0
     val computerEnemy1 = Trainer()
     val computerEnemy2 = Trainer()
     val computerEnemy3 = Trainer()
@@ -52,20 +52,6 @@ class UjimonController(val width : Int,
     init {
         graphics = Graphics(width, height)
         model = UjimonModel(playerTrainer, computerEnemy1, computerEnemy2, computerEnemy3, this)
-        fillUjimonArray()
-    }
-
-    private fun fillUjimonArray() {
-        ujimonToChoose[0] = model.ujimonInstances.maglugInstance
-        ujimonToChoose[1] = model.ujimonInstances.obshoInstance
-        ujimonToChoose[2] = model.ujimonInstances.redashInstance
-        ujimonToChoose[3] = model.ujimonInstances.sworsthInstance
-        ujimonToChoose[4] = model.ujimonInstances.maglugInstance
-        ujimonToChoose[5] = model.ujimonInstances.obshoInstance
-        ujimonToChoose[6] = model.ujimonInstances.redashInstance
-        ujimonToChoose[7] = model.ujimonInstances.sworsthInstance
-        ujimonToChoose[8] = model.ujimonInstances.maglugInstance
-        ujimonToChoose[9] = model.ujimonInstances.obshoInstance
     }
 
     override fun onUpdate(deltaTime: Float, touchEvents: MutableList<TouchHandler.TouchEvent>?) {
@@ -77,7 +63,18 @@ class UjimonController(val width : Int,
                 when(event.type){
                     TouchHandler.TouchType.TOUCH_UP -> {
                         if(model.state == UjimonModel.UjimonState.UJIMON_SELECTION){
-                            for(i in 1..2)
+                            for(i in 0..5){
+                                if(correctedEventX >= buttonStartColumnInt + i * 3 && correctedEventX < buttonStartColumnInt + Assets.UJIMON_SIZE_BUTTON + i * 4
+                                    && correctedEventY >= buttonStartRowInt && correctedEventY < buttonStartRowInt + Assets.UJIMON_SIZE_BUTTON){
+                                    playerTrainer.ujimonTeam[playerTeamIndex] = model.selectUjimon(i, 1)
+                                    playerTeamIndex++
+                                }
+                                if(correctedEventX >= buttonStartColumnInt + i * 3 && correctedEventX < buttonStartColumnInt + Assets.UJIMON_SIZE_BUTTON + i * 4
+                                        && correctedEventY >= buttonStartSecondRowInt && correctedEventY < buttonStartSecondRowInt + Assets.UJIMON_SIZE_BUTTON) {
+                                    playerTrainer.ujimonTeam[playerTeamIndex] = model.selectUjimon(i, 2)
+                                    playerTeamIndex++
+                                }
+                            }
                         }
                     }
                 }
@@ -98,9 +95,15 @@ class UjimonController(val width : Int,
     }
 
     private fun drawUjimonButtons() {
-        val i = 0
-        for(ujimon in ujimonToChoose){
-            graphics.drawRect(buttonStartColumn * cellSide + xOffset, buttonStartRow)
+        for((i, ujimon) in model.ujimonInstances.ujimonArray.withIndex()){
+            if(i < 5) {
+                graphics.drawRect((buttonStartColumnInt + Assets.UJIMON_SIZE_BUTTON * i + 2) * cellSide + xOffset, buttonStartRow, Assets.UJIMON_SIZE_BUTTON * cellSide, Assets.UJIMON_SIZE_BUTTON * cellSide, SELECTION_MENU_COLOR)
+                graphics.drawBitmap(ujimon.imageAsset,(buttonStartColumnInt + Assets.UJIMON_SIZE_BUTTON * i + 2) * cellSide + xOffset, buttonStartRow)
+            }
+            else {
+                graphics.drawRect((buttonStartColumnInt + Assets.UJIMON_SIZE_BUTTON * i + 2) * cellSide + xOffset, buttonStartSecondRow, Assets.UJIMON_SIZE_BUTTON * cellSide, Assets.UJIMON_SIZE_BUTTON * cellSide, SELECTION_MENU_COLOR)
+                graphics.drawBitmap(ujimon.imageAsset, (buttonStartColumnInt + Assets.UJIMON_SIZE_BUTTON * i + 2) * cellSide + xOffset, buttonStartSecondRow)
+            }
         }
     }
 

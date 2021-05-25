@@ -4,15 +4,16 @@ import es.uji.al385729.ujimon.Assets
 
 class UjimonInstances {
     val ujimonArray: Array<Ujimon> = Array<Ujimon>(10) {
-        Ujimon(1000f, "Maglug", Assets.maglugAsset, false, Type.FIRE)
-        Ujimon(1000f, "Obsho", Assets.obshoAsset, false, Type.DARKNESS)
-        Ujimon(1000f, "Redash", Assets.redashAsset, false, Type.PLANT)
-        Ujimon(1000f, "Sworsth", Assets.sworsthAsset, false, Type.DARKNESS)
-        Ujimon(1000f, "Maglug", Assets.maglugAsset, false, Type.FIRE)
-        Ujimon(1000f, "Obsho", Assets.obshoAsset, false, Type.DARKNESS)
-        Ujimon(1000f, "Redash", Assets.redashAsset, false, Type.PLANT)
-        Ujimon(1000f, "Sworsth", Assets.sworsthAsset, false, Type.DARKNESS)
-        Ujimon(1000f, "Sworsth", Assets.sworsthAsset, false, Type.DARKNESS)
+        Ujimon(1000f, "Maglug", Assets.assetsCombat[0], Assets.assetsButton[0], false, Type.FIRE)
+        Ujimon(1000f, "Obsho", Assets.assetsCombat[1], Assets.assetsButton[1], false, Type.DARKNESS)
+        Ujimon(1000f, "Redash", Assets.assetsCombat[2], Assets.assetsButton[2], false, Type.PLANT)
+        Ujimon(1000f, "Sworsth", Assets.assetsCombat[3], Assets.assetsButton[3], false, Type.DARKNESS)
+        Ujimon(1000f, "Maglug", Assets.assetsCombat[0], Assets.assetsButton[0],false, Type.FIRE)
+        Ujimon(1000f, "Obsho", Assets.assetsCombat[1], Assets.assetsButton[1],false, Type.DARKNESS)
+        Ujimon(1000f, "Redash", Assets.assetsCombat[2], Assets.assetsButton[2],false, Type.PLANT)
+        Ujimon(1000f, "Sworsth", Assets.assetsCombat[3], Assets.assetsButton[3],false, Type.DARKNESS)
+        Ujimon(1000f, "Sworsth", Assets.assetsCombat[0], Assets.assetsButton[0],false, Type.FIRE)
+        Ujimon(1000f, "Sworsth", Assets.assetsCombat[1], Assets.assetsButton[1], false, Type.DARKNESS)
     }
 
     init {

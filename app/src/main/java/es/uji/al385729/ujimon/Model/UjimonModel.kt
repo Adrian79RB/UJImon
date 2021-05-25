@@ -37,6 +37,10 @@ class UjimonModel(val playerTrainer : Trainer, val enemyTrainer1 : Trainer, val 
         state = newState
     }
 
+    fun selectUjimon(index : Int, row : Int): Ujimon {
+
+    }
+
     fun createEnemyTrainer1Team(){
         var selectedUjimon : Int
         for( i in 0 until 2){
@@ -44,7 +48,7 @@ class UjimonModel(val playerTrainer : Trainer, val enemyTrainer1 : Trainer, val 
                 selectedUjimon = Random.nextInt(0,9)
             }
             while (ujimonInstances.ujimonArray[selectedUjimon].name != enemyTrainer1.ujimonTeam[0].name && ujimonInstances.ujimonArray[selectedUjimon].name != enemyTrainer1.ujimonTeam[1].name && ujimonInstances.ujimonArray[selectedUjimon].name != enemyTrainer1.ujimonTeam[2].name)
-            enemyTrainer1.ujimonTeam[i] = Ujimon(ujimonInstances.ujimonArray[selectedUjimon].healthPoints, ujimonInstances.ujimonArray[selectedUjimon].name, ujimonInstances.ujimonArray[selectedUjimon].imageAsset, ujimonInstances.ujimonArray[selectedUjimon].dead, ujimonInstances.ujimonArray[selectedUjimon].type)
+            enemyTrainer1.ujimonTeam[i] = Ujimon(ujimonInstances.ujimonArray[selectedUjimon].healthPoints, ujimonInstances.ujimonArray[selectedUjimon].name, ujimonInstances.ujimonArray[selectedUjimon].imageAsset, ujimonInstances.ujimonArray[selectedUjimon].buttonAsset,ujimonInstances.ujimonArray[selectedUjimon].dead, ujimonInstances.ujimonArray[selectedUjimon].type)
         }
     }
 
@@ -55,7 +59,7 @@ class UjimonModel(val playerTrainer : Trainer, val enemyTrainer1 : Trainer, val 
                 selectedUjimon = Random.nextInt(0,9)
             }
             while (ujimonInstances.ujimonArray[selectedUjimon].name != enemyTrainer2.ujimonTeam[0].name && ujimonInstances.ujimonArray[selectedUjimon].name != enemyTrainer2.ujimonTeam[1].name && ujimonInstances.ujimonArray[selectedUjimon].name != enemyTrainer2.ujimonTeam[2].name && ujimonInstances.ujimonArray[selectedUjimon].name != enemyTrainer2.ujimonTeam[3].name )
-            enemyTrainer2.ujimonTeam[i] = Ujimon(ujimonInstances.ujimonArray[selectedUjimon].healthPoints, ujimonInstances.ujimonArray[selectedUjimon].name, ujimonInstances.ujimonArray[selectedUjimon].imageAsset, ujimonInstances.ujimonArray[selectedUjimon].dead, ujimonInstances.ujimonArray[selectedUjimon].type)
+            enemyTrainer2.ujimonTeam[i] = Ujimon(ujimonInstances.ujimonArray[selectedUjimon].healthPoints, ujimonInstances.ujimonArray[selectedUjimon].name, ujimonInstances.ujimonArray[selectedUjimon].imageAsset, ujimonInstances.ujimonArray[selectedUjimon].buttonAsset, ujimonInstances.ujimonArray[selectedUjimon].dead, ujimonInstances.ujimonArray[selectedUjimon].type)
         }
     }
 
@@ -66,7 +70,7 @@ class UjimonModel(val playerTrainer : Trainer, val enemyTrainer1 : Trainer, val 
                 selectedUjimon = Random.nextInt(0,9)
             }
             while (ujimonInstances.ujimonArray[selectedUjimon].name != enemyTrainer3.ujimonTeam[0].name && ujimonInstances.ujimonArray[selectedUjimon].name != enemyTrainer3.ujimonTeam[1].name && ujimonInstances.ujimonArray[selectedUjimon].name != enemyTrainer3.ujimonTeam[2].name && ujimonInstances.ujimonArray[selectedUjimon].name != enemyTrainer3.ujimonTeam[3].name && ujimonInstances.ujimonArray[selectedUjimon].name != enemyTrainer3.ujimonTeam[4].name)
-            enemyTrainer3.ujimonTeam[i] = Ujimon(ujimonInstances.ujimonArray[selectedUjimon].healthPoints, ujimonInstances.ujimonArray[selectedUjimon].name, ujimonInstances.ujimonArray[selectedUjimon].imageAsset, ujimonInstances.ujimonArray[selectedUjimon].dead, ujimonInstances.ujimonArray[selectedUjimon].type)
+            enemyTrainer3.ujimonTeam[i] = Ujimon(ujimonInstances.ujimonArray[selectedUjimon].healthPoints, ujimonInstances.ujimonArray[selectedUjimon].name, ujimonInstances.ujimonArray[selectedUjimon].imageAsset, ujimonInstances.ujimonArray[selectedUjimon].buttonAsset, ujimonInstances.ujimonArray[selectedUjimon].dead, ujimonInstances.ujimonArray[selectedUjimon].type)
         }
     }
 }

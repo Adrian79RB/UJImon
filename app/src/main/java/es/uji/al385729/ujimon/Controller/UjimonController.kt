@@ -44,7 +44,6 @@ class UjimonController(val width : Int,
     private val buttonStartSecondRowInt = 7
 
     val playerTrainer = Trainer()
-    var playerTeamIndex = 0
     val computerEnemy1 = Trainer()
     val computerEnemy2 = Trainer()
     val computerEnemy3 = Trainer()
@@ -66,13 +65,13 @@ class UjimonController(val width : Int,
                             for(i in 0..5){
                                 if(correctedEventX >= buttonStartColumnInt + i * 3 && correctedEventX < buttonStartColumnInt + Assets.UJIMON_SIZE_BUTTON + i * 4
                                     && correctedEventY >= buttonStartRowInt && correctedEventY < buttonStartRowInt + Assets.UJIMON_SIZE_BUTTON){
-                                    playerTrainer.ujimonTeam[playerTeamIndex] = model.selectUjimon(i, 1)
-                                    playerTeamIndex++
+                                    val ujimonSelected = model.selectUjimon(i, 1)
+
                                 }
                                 if(correctedEventX >= buttonStartColumnInt + i * 3 && correctedEventX < buttonStartColumnInt + Assets.UJIMON_SIZE_BUTTON + i * 4
                                         && correctedEventY >= buttonStartSecondRowInt && correctedEventY < buttonStartSecondRowInt + Assets.UJIMON_SIZE_BUTTON) {
-                                    playerTrainer.ujimonTeam[playerTeamIndex] = model.selectUjimon(i, 2)
-                                    playerTeamIndex++
+                                    val ujimonSelected = model.selectUjimon(i, 2)
+                                    model.playerSelectUjimon(ujimonSelected, playerTrainer.ujimonTeam)
                                 }
                             }
                         }

@@ -38,7 +38,7 @@ class UjimonModel(val playerTrainer : Trainer, val enemyTrainer1 : Trainer, val 
     }
 
     fun selectUjimon(index : Int, row : Int): Ujimon {
-
+        return ujimonInstances.ujimonArray[index * row]
     }
 
     fun createEnemyTrainer1Team(){
@@ -47,7 +47,7 @@ class UjimonModel(val playerTrainer : Trainer, val enemyTrainer1 : Trainer, val 
             do {
                 selectedUjimon = Random.nextInt(0,9)
             }
-            while (ujimonInstances.ujimonArray[selectedUjimon].name != enemyTrainer1.ujimonTeam[0].name && ujimonInstances.ujimonArray[selectedUjimon].name != enemyTrainer1.ujimonTeam[1].name && ujimonInstances.ujimonArray[selectedUjimon].name != enemyTrainer1.ujimonTeam[2].name)
+            while (!ujimonAlreadySelected(ujimonInstances.ujimonArray[selectedUjimon], enemyTrainer1.ujimonTeam))
             enemyTrainer1.ujimonTeam[i] = Ujimon(ujimonInstances.ujimonArray[selectedUjimon].healthPoints, ujimonInstances.ujimonArray[selectedUjimon].name, ujimonInstances.ujimonArray[selectedUjimon].imageAsset, ujimonInstances.ujimonArray[selectedUjimon].buttonAsset,ujimonInstances.ujimonArray[selectedUjimon].dead, ujimonInstances.ujimonArray[selectedUjimon].type)
         }
     }
@@ -58,7 +58,7 @@ class UjimonModel(val playerTrainer : Trainer, val enemyTrainer1 : Trainer, val 
             do {
                 selectedUjimon = Random.nextInt(0,9)
             }
-            while (ujimonInstances.ujimonArray[selectedUjimon].name != enemyTrainer2.ujimonTeam[0].name && ujimonInstances.ujimonArray[selectedUjimon].name != enemyTrainer2.ujimonTeam[1].name && ujimonInstances.ujimonArray[selectedUjimon].name != enemyTrainer2.ujimonTeam[2].name && ujimonInstances.ujimonArray[selectedUjimon].name != enemyTrainer2.ujimonTeam[3].name )
+            while (!ujimonAlreadySelected(ujimonInstances.ujimonArray[selectedUjimon], enemyTrainer2.ujimonTeam))
             enemyTrainer2.ujimonTeam[i] = Ujimon(ujimonInstances.ujimonArray[selectedUjimon].healthPoints, ujimonInstances.ujimonArray[selectedUjimon].name, ujimonInstances.ujimonArray[selectedUjimon].imageAsset, ujimonInstances.ujimonArray[selectedUjimon].buttonAsset, ujimonInstances.ujimonArray[selectedUjimon].dead, ujimonInstances.ujimonArray[selectedUjimon].type)
         }
     }
@@ -69,8 +69,33 @@ class UjimonModel(val playerTrainer : Trainer, val enemyTrainer1 : Trainer, val 
             do {
                 selectedUjimon = Random.nextInt(0,9)
             }
-            while (ujimonInstances.ujimonArray[selectedUjimon].name != enemyTrainer3.ujimonTeam[0].name && ujimonInstances.ujimonArray[selectedUjimon].name != enemyTrainer3.ujimonTeam[1].name && ujimonInstances.ujimonArray[selectedUjimon].name != enemyTrainer3.ujimonTeam[2].name && ujimonInstances.ujimonArray[selectedUjimon].name != enemyTrainer3.ujimonTeam[3].name && ujimonInstances.ujimonArray[selectedUjimon].name != enemyTrainer3.ujimonTeam[4].name)
+            while (!ujimonAlreadySelected(ujimonInstances.ujimonArray[selectedUjimon], enemyTrainer3.ujimonTeam))
             enemyTrainer3.ujimonTeam[i] = Ujimon(ujimonInstances.ujimonArray[selectedUjimon].healthPoints, ujimonInstances.ujimonArray[selectedUjimon].name, ujimonInstances.ujimonArray[selectedUjimon].imageAsset, ujimonInstances.ujimonArray[selectedUjimon].buttonAsset, ujimonInstances.ujimonArray[selectedUjimon].dead, ujimonInstances.ujimonArray[selectedUjimon].type)
+        }
+    }
+
+    fun ujimonAlreadySelected(ujimonSelected: Ujimon, ujimonTeam: Array<Ujimon>): Boolean {
+        for(ujimon in ujimonTeam){
+            if(ujimonSelected.name == ujimon.name)
+                return true
+        }
+
+        return false
+    }
+
+    fun playerSelectUjimon(ujimonSelected: Ujimon, ujimonTeam: Array<Ujimon>) {
+        for(i in ujimonTeam.indices){
+            if(ujimonSelected.name == ujimonTeam[i].name){
+                ujimonTeam[i] = Ujimon(0f, "", null, null, false, Type.NORMAL)
+                return
+            }
+        }
+
+        for(i in ujimonTeam.indices){
+            if(ujimonTeam[i].name == "") {
+                ujimonTeam[i] = ujimonSelected
+                break
+            }
         }
     }
 }

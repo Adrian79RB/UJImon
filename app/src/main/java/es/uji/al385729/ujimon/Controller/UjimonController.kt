@@ -43,7 +43,7 @@ class UjimonController(val width : Int,
     private val buttonStartRowInt = 2
     private val buttonStartSecondRow = 7 * cellSide + yOffset
     private val buttonStartSecondRowInt = 7
-    private val battleButtonRow = 11
+    private val battleButtonRowInt = 11
     private val battleButtonCol = 17
     private val battlePlayerUjimonRow = 6
     private val battlePlayerUjimonCol = 1

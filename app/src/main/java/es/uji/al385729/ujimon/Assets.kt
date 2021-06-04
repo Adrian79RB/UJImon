@@ -12,6 +12,9 @@ object Assets {
     var assetsCombat : Array<Bitmap?> = Array(10){null}
     var assetsFromBack : Array<Bitmap?> = Array(10){null}
     var assetsButton : Array<Bitmap?> = Array(10){null}
+    var battleButton : Bitmap? = null
+    var attackButton : Bitmap? = null
+    var changeButton : Bitmap? = null
 
 
     fun createResizedAssets(context: Context, cellSize : Int){
@@ -38,6 +41,16 @@ object Assets {
         assetsCombat[3] = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(resources, R.drawable.sworsth), cellSize * UJIMON_SIZE_COMBAT, cellSize * UJIMON_SIZE_COMBAT, true)
         assetsButton[3]?.recycle()
         assetsButton[3] = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(resources, R.drawable.sworsth), cellSize * UJIMON_SIZE_BUTTON, cellSize * UJIMON_SIZE_BUTTON, true)
+
+
+        battleButton?.recycle()
+        battleButton = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(resources, R.drawable.battle_button), cellSize * UJIMON_SIZE_BUTTON, cellSize * UJIMON_SIZE_BUTTON, true)
+
+        attackButton?.recycle()
+        attackButton = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(resources, R.drawable.attack_button), cellSize * UJIMON_SIZE_BUTTON, cellSize * UJIMON_SIZE_BUTTON, true)
+
+        changeButton?.recycle()
+        changeButton = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(resources, R.drawable.change_button), cellSize * UJIMON_SIZE_BUTTON, cellSize * UJIMON_SIZE_BUTTON, true)
 
     }
 }

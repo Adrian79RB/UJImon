@@ -19,6 +19,7 @@ class UjimonController(val width : Int,
         private val TOTAL_CELL_HEIGHT = 14
         private val BACKGROUND_COLOR = Color.rgb(0xff, 0xff, 0xff)
         private val SELECTION_MENU_COLOR = Color.rgb(0xC5, 0xC0, 0x24)
+        private val BUTTON_SELECTED_COLOR = Color.rgb(0xDF, 0x32, 0x32)
         private val TEXT_COLOR = Color.rgb(0xFF, 0x6A, 0x98)
     }
 
@@ -42,6 +43,13 @@ class UjimonController(val width : Int,
     private val buttonStartRowInt = 2
     private val buttonStartSecondRow = 7 * cellSide + yOffset
     private val buttonStartSecondRowInt = 7
+    private val battleButtonRow = 11
+    private val battleButtonCol = 17
+    private val battlePlayerUjimonRow = 6
+    private val battlePlayerUjimonCol = 1
+    private val playerTeamStartColumnInt = 14
+    private var ujimonChoosen = 0
+    private var gameLevel = 0
 
     val playerTrainer = Trainer()
     val computerEnemy1 = Trainer()
@@ -49,6 +57,7 @@ class UjimonController(val width : Int,
     val computerEnemy3 = Trainer()
 
     init {
+        Assets.createResizedAssets(contex, cellSideInt)
         graphics = Graphics(width, height)
         model = UjimonModel(playerTrainer, computerEnemy1, computerEnemy2, computerEnemy3, this)
     }
@@ -61,20 +70,42 @@ class UjimonController(val width : Int,
 
                 when(event.type){
                     TouchHandler.TouchType.TOUCH_UP -> {
-                        if(model.state == UjimonModel.UjimonState.UJIMON_SELECTION){
-                            for(i in 0..5){
-                                if(correctedEventX >= buttonStartColumnInt + i * 3 && correctedEventX < buttonStartColumnInt + Assets.UJIMON_SIZE_BUTTON + i * 4
+                        if(model.state == UjimonModel.UjimonState.UJIMON_SELECTION || model.state == UjimonModel.UjimonState.UJIMON_SELECTED){
+                            for(i in 0 until 5){
+                                if(correctedEventX >= buttonStartColumnInt + i * 2 && correctedEventX < buttonStartColumnInt + Assets.UJIMON_SIZE_BUTTON + i * 2
                                     && correctedEventY >= buttonStartRowInt && correctedEventY < buttonStartRowInt + Assets.UJIMON_SIZE_BUTTON){
                                     val ujimonSelected = model.selectUjimon(i, 1)
-
+                                    model.playerSelectUjimon(ujimonSelected, playerTrainer.ujimonTeam)
                                 }
-                                if(correctedEventX >= buttonStartColumnInt + i * 3 && correctedEventX < buttonStartColumnInt + Assets.UJIMON_SIZE_BUTTON + i * 4
+                                if(correctedEventX >= buttonStartColumnInt + i * 2 && correctedEventX < buttonStartColumnInt + Assets.UJIMON_SIZE_BUTTON + i * 2
                                         && correctedEventY >= buttonStartSecondRowInt && correctedEventY < buttonStartSecondRowInt + Assets.UJIMON_SIZE_BUTTON) {
                                     val ujimonSelected = model.selectUjimon(i, 2)
                                     model.playerSelectUjimon(ujimonSelected, playerTrainer.ujimonTeam)
                                 }
                             }
+
+                            ujimonChoosen = 0
+                            for(ujimon in playerTrainer.ujimonTeam){
+                                if(ujimon.name != "")
+                                    ujimonChoosen++
+                            }
+                            if(ujimonChoosen == playerTrainer.ujimonTeam.size)
+                                model.changeModelState(UjimonModel.UjimonState.UJIMON_SELECTED)
+                            else if(model.state == UjimonModel.UjimonState.UJIMON_SELECTED)
+                                model.changeModelState(UjimonModel.UjimonState.UJIMON_SELECTION)
                         }
+
+                        if(model.state == UjimonModel.UjimonState.UJIMON_SELECTED){
+                            if(correctedEventX > battleButtonCol && correctedEventX < battleButtonCol + Assets.UJIMON_SIZE_BUTTON
+                                && correctedEventY > battleButtonRow && correctedEventY < battleButtonRow + Assets.UJIMON_SIZE_BUTTON) {
+                                model.createEnemyTrainer1Team()
+                                model.createEnemyTrainer2Team()
+                                model.createEnemyTrainer3Team()
+                                model.changeModelState(UjimonModel.UjimonState.PLAYER_TURN)
+                                playerTrainer.ujimonSelected = playerTrainer.ujimonTeam[0]
+                            }
+                        }
+
                     }
                 }
             }
@@ -88,21 +119,46 @@ class UjimonController(val width : Int,
         if(model.state == UjimonModel.UjimonState.UJIMON_SELECTION || model.state == UjimonModel.UjimonState.UJIMON_SELECTED){
             graphics.drawText(4 * cellSide + xOffset, cellSide + yOffset, "Choose your Ujimon Team")
             drawUjimonButtons()
+
+            if(model.state == UjimonModel.UjimonState.UJIMON_SELECTED)
+                graphics.drawBitmap( Assets.battleButton, battleButtonCol * cellSide + xOffset, battleButtonRow * cellSide + yOffset)
+        }
+
+        if(model.state == UjimonModel.UjimonState.PLAYER_TURN){
+            graphics.drawBitmap(playerTrainer.ujimonSelected!!.imageAsset, battlePlayerUjimonCol * cellSide + xOffset, battlePlayerUjimonRow * cellSide + yOffset)
+            graphics.drawBitmap(Assets.attackButton, 8 * cellSide + xOffset, 11 * cellSide + yOffset)
+            graphics.drawBitmap(Assets.changeButton, 11 * cellSide + xOffset, 11 * cellSide + yOffset)
         }
 
         return graphics.frameBuffer
     }
 
     private fun drawUjimonButtons() {
-        for((i, ujimon) in model.ujimonInstances.ujimonArray.withIndex()){
+        var i = 0
+        var k = 0
+        for(ujimon in model.ujimonInstances.ujimonArray){
             if(i < 5) {
-                graphics.drawRect((buttonStartColumnInt + Assets.UJIMON_SIZE_BUTTON * i + 2) * cellSide + xOffset, buttonStartRow, Assets.UJIMON_SIZE_BUTTON * cellSide, Assets.UJIMON_SIZE_BUTTON * cellSide, SELECTION_MENU_COLOR)
-                graphics.drawBitmap(ujimon.imageAsset,(buttonStartColumnInt + Assets.UJIMON_SIZE_BUTTON * i + 2) * cellSide + xOffset, buttonStartRow)
+                if(model.ujimonAlreadySelected(ujimon, playerTrainer.ujimonTeam)) {
+                    graphics.drawRect((buttonStartColumnInt + Assets.UJIMON_SIZE_BUTTON * i) * cellSide + xOffset, buttonStartRow, Assets.UJIMON_SIZE_BUTTON * cellSide, Assets.UJIMON_SIZE_BUTTON * cellSide, BUTTON_SELECTED_COLOR)
+                    graphics.drawBitmap(ujimon.buttonAsset ,(playerTeamStartColumnInt + Assets.UJIMON_SIZE_BUTTON * k)* cellSide + xOffset, buttonStartRow)
+                    k++
+                }
+                else
+                    graphics.drawRect((buttonStartColumnInt + Assets.UJIMON_SIZE_BUTTON * i) * cellSide + xOffset, buttonStartRow, Assets.UJIMON_SIZE_BUTTON * cellSide, Assets.UJIMON_SIZE_BUTTON * cellSide, SELECTION_MENU_COLOR)
+
+                graphics.drawBitmap(ujimon.buttonAsset,(buttonStartColumnInt + Assets.UJIMON_SIZE_BUTTON * i) * cellSide + xOffset, buttonStartRow)
             }
             else {
-                graphics.drawRect((buttonStartColumnInt + Assets.UJIMON_SIZE_BUTTON * i + 2) * cellSide + xOffset, buttonStartSecondRow, Assets.UJIMON_SIZE_BUTTON * cellSide, Assets.UJIMON_SIZE_BUTTON * cellSide, SELECTION_MENU_COLOR)
-                graphics.drawBitmap(ujimon.imageAsset, (buttonStartColumnInt + Assets.UJIMON_SIZE_BUTTON * i + 2) * cellSide + xOffset, buttonStartSecondRow)
+                if (model.ujimonAlreadySelected(ujimon, playerTrainer.ujimonTeam)) {
+                    graphics.drawRect((buttonStartColumnInt + Assets.UJIMON_SIZE_BUTTON * (i - 5)) * cellSide + xOffset, buttonStartSecondRow, Assets.UJIMON_SIZE_BUTTON * cellSide, Assets.UJIMON_SIZE_BUTTON * cellSide, BUTTON_SELECTED_COLOR)
+                    graphics.drawBitmap(ujimon.buttonAsset, (playerTeamStartColumnInt + Assets.UJIMON_SIZE_BUTTON * k) * cellSide + xOffset, buttonStartRow)
+                    k++
+                } else
+                    graphics.drawRect((buttonStartColumnInt + Assets.UJIMON_SIZE_BUTTON * (i - 5)) * cellSide + xOffset, buttonStartSecondRow, Assets.UJIMON_SIZE_BUTTON * cellSide, Assets.UJIMON_SIZE_BUTTON * cellSide, SELECTION_MENU_COLOR)
+
+                graphics.drawBitmap(ujimon.buttonAsset, (buttonStartColumnInt + Assets.UJIMON_SIZE_BUTTON * (i - 5)) * cellSide + xOffset, buttonStartSecondRow)
             }
+            i++
         }
     }
 

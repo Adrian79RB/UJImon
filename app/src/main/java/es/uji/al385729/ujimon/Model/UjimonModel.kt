@@ -38,7 +38,10 @@ class UjimonModel(val playerTrainer : Trainer, val enemyTrainer1 : Trainer, val 
     }
 
     fun selectUjimon(index : Int, row : Int): Ujimon {
-        return ujimonInstances.ujimonArray[index * row]
+        if(row == 1)
+            return ujimonInstances.ujimonArray[index]
+        else
+            return ujimonInstances.ujimonArray[index + 5]
     }
 
     fun createEnemyTrainer1Team(){

@@ -43,6 +43,9 @@ class UjimonController(val width : Int,
     private val buttonStartSecondRow = 7 * cellSide + yOffset
     private val buttonStartSecondRowInt = 7
 
+    private val battleButtonRow = 11 * cellSide + xOffset
+    private val battleButtonColumn = 18 * cellSide + yOffset
+
     val playerTrainer = Trainer()
     val computerEnemy1 = Trainer()
     val computerEnemy2 = Trainer()
@@ -90,6 +93,10 @@ class UjimonController(val width : Int,
             drawUjimonButtons()
         }
 
+        if(model.state == UjimonModel.UjimonState.UJIMON_SELECTED){
+            drawBattleButton()
+        }
+
         return graphics.frameBuffer
     }
 
@@ -104,6 +111,10 @@ class UjimonController(val width : Int,
                 graphics.drawBitmap(ujimon.imageAsset, (buttonStartColumnInt + Assets.UJIMON_SIZE_BUTTON * i + 2) * cellSide + xOffset, buttonStartSecondRow)
             }
         }
+    }
+
+    private fun drawBattleButton(){
+        graphics.drawBitmap(Assets.battleButton, battleButtonColumn, battleButtonRow)
     }
 
     override fun playIntroMusic() {

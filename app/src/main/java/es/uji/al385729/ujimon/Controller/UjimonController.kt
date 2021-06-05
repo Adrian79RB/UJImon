@@ -158,19 +158,74 @@ class UjimonController(val width : Int,
                                 model.changeModelState(UjimonModel.UjimonState.WAITING)
                             }
                         }
+                        if(model.state == UjimonModel.UjimonState.PLAYER_ATTACK){
+                            chosenAttack = null
+                            for (i in 0 until 4){
+                                if(correctedEventX>= changeButtonCol && correctedEventY >= changeButtonRow+i-1 && correctedEventY < changeButtonRow + i){
+                                    chosenAttack = playerTrainer.ujimonSelected!!.ujimonAttacks[i]
+                                    playerTrainer.ujimonSelected!!.ujimonAttacks[i].actualAmount-=1
+                                }
+                            }
+                            if(chosenAttack != null) {
+                                when(gameLevel){
+                                    1->{
+                                        computerEnemy1.ujimonSelected!!.recieveAttack(chosenAttack!!)
+                                        if(computerEnemy1.ujimonSelected!!.dead){
+                                            for(ujimon in computerEnemy1.ujimonTeam){
+                                                if(!ujimon.dead){
+                                                    computerEnemy1.ujimonSelected = ujimon
+                                                    break
+                                                }
+                                            }
+                                        }
+                                    }
+                                    2->{
+                                        computerEnemy2.ujimonSelected!!.recieveAttack(chosenAttack!!)
+                                        if(computerEnemy2.ujimonSelected!!.dead){
+                                            for(ujimon in computerEnemy2.ujimonTeam){
+                                                if(!ujimon.dead){
+                                                    computerEnemy2.ujimonSelected = ujimon
+                                                    break
+                                                }
+                                            }
+                                        }
+                                    }
+                                    3->{
+                                        computerEnemy3.ujimonSelected!!.recieveAttack(chosenAttack!!)
+                                        if(computerEnemy3.ujimonSelected!!.dead){
+                                            for(ujimon in computerEnemy3.ujimonTeam){
+                                                if(!ujimon.dead){
+                                                    computerEnemy3.ujimonSelected = ujimon
+                                                    break
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
 
+                                model.changeModelState(UjimonModel.UjimonState.WAITING)
+                            }
+
+                        }
                         if(model.state == UjimonModel.UjimonState.PLAYER_TURN){
                             if(correctedEventX >= changeButtonCol && correctedEventX< changeButtonCol + Assets.UJIMON_SIZE_BUTTON
                                 && correctedEventY >= changeButtonRow && correctedEventY < changeButtonRow + Assets.UJIMON_SIZE_BUTTON){
                                 model.changeModelState(UjimonModel.UjimonState.PLAYER_CHOOSE_UJIMON)
                             }
+                            if(correctedEventX >= attackButtonCol && correctedEventX< attackButtonCol + Assets.UJIMON_SIZE_BUTTON
+                                    && correctedEventY >= attackButtonRow && correctedEventY < attackButtonRow + Assets.UJIMON_SIZE_BUTTON){
+                                model.changeModelState(UjimonModel.UjimonState.PLAYER_ATTACK)
+                            }
                         }
+
+
                     }
                 }
             }
         }
 
         if(model.state == UjimonModel.UjimonState.COMPUTER_TURN){
+            chosenAttack = null
             when(gameLevel){
                 1 -> {
                     chosenAttack = model.computerAttack(computerEnemy1, playerTrainer)
@@ -217,7 +272,7 @@ class UjimonController(val width : Int,
                 graphics.drawBitmap( Assets.battleButton, battleButtonColInt * cellSide + xOffset, battleButtonRowInt * cellSide + yOffset)
         }
 
-        if(model.state == UjimonModel.UjimonState.PLAYER_TURN || model.state == UjimonModel.UjimonState.COMPUTER_TURN || model.state == UjimonModel.UjimonState.WAITING){
+        if(model.state == UjimonModel.UjimonState.PLAYER_TURN || model.state == UjimonModel.UjimonState.COMPUTER_TURN || model.state == UjimonModel.UjimonState.WAITING || model.state == UjimonModel.UjimonState.PLAYER_ATTACK){
             graphics.drawBitmap(playerTrainer.ujimonSelected!!.imageAsset, battlePlayerUjimonCol * cellSide + xOffset, battlePlayerUjimonRow * cellSide + yOffset)
             graphics.drawText(battlePlayerUjimonCol * cellSide + xOffset + Assets.UJIMON_SIZE_COMBAT + 1,battlePlayerUjimonRow * cellSide + yOffset,playerTrainer.ujimonSelected!!.name + " HP: " + playerTrainer.ujimonSelected!!.healthPoints.toString() )
 
@@ -239,9 +294,15 @@ class UjimonController(val width : Int,
                 }
             }
 
-            graphics.drawBitmap(Assets.attackButton, attackButtonCol * cellSide + xOffset, attackButtonRow * cellSide + yOffset)
-            graphics.drawBitmap(Assets.changeButton, changeButtonCol * cellSide + xOffset, changeButtonRow * cellSide + yOffset)
+            if(model.state != UjimonModel.UjimonState.PLAYER_ATTACK) {
+                graphics.drawBitmap(Assets.attackButton, attackButtonCol * cellSide + xOffset, attackButtonRow * cellSide + yOffset)
+                graphics.drawBitmap(Assets.changeButton, changeButtonCol * cellSide + xOffset, changeButtonRow * cellSide + yOffset)
+            }
 
+        }
+
+        if(model.state == UjimonModel.UjimonState.PLAYER_TURN){
+            graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset, "Make your move")
         }
 
         if(model.state == UjimonModel.UjimonState.PLAYER_CHOOSE_UJIMON){
@@ -257,11 +318,14 @@ class UjimonController(val width : Int,
                     graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset,  chosenUjimon!!.name + " have failed the attack.")
             }
             else if(model.lastState == UjimonModel.UjimonState.PLAYER_ATTACK)
-                graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset,  "You have chosen an attack (HAY QUE COMPLETAR ESTO)")
+                graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset,  "You have used : " + chosenAttack!!.Nombre)
             else if(model.lastState == UjimonModel.UjimonState.PLAYER_CHOOSE_UJIMON)
                 graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset,  "You have changed your Ujimon to " + playerTrainer.ujimonSelected!!.name)
         }
 
+        if(model.state == UjimonModel.UjimonState.PLAYER_ATTACK){
+            drawAttacksButtons(playerTrainer.ujimonSelected!!)
+        }
 
         return graphics.frameBuffer
     }
@@ -310,6 +374,14 @@ class UjimonController(val width : Int,
         }
 
         graphics.drawBitmap(Assets.backButton, battleButtonColumn, battleButtonRow)
+    }
+
+    private  fun drawAttacksButtons(ujimon : Ujimon){
+        var i = 0
+        for(attack in ujimon.ujimonAttacks){
+            graphics.drawText((attackButtonCol) * cellSide + xOffset, (attackButtonRow+i) * cellSide + yOffset , attack.Nombre +  " " + attack.actualAmount + "/" + attack.totalAmount)
+            i++
+        }
     }
 
     override fun playIntroMusic() {

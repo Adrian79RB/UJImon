@@ -44,9 +44,11 @@ class UjimonController(val width : Int,
     private val buttonStartSecondRow = 7 * cellSide + yOffset
     private val buttonStartSecondRowInt = 7
     private val battleButtonRowInt = 11
-    private val battleButtonCol = 17
+    private val battleButtonColInt = 17
     private val battlePlayerUjimonRow = 6
     private val battlePlayerUjimonCol = 1
+    private val battleEnemyUjimonRow = 1
+    private val battleEnemuUjimonCol = 10
     private val playerTeamStartColumnInt = 14
     private var ujimonChoosen = 0
     private var gameLevel = 0
@@ -99,13 +101,17 @@ class UjimonController(val width : Int,
                         }
 
                         if(model.state == UjimonModel.UjimonState.UJIMON_SELECTED){
-                            if(correctedEventX > battleButtonCol && correctedEventX < battleButtonCol + Assets.UJIMON_SIZE_BUTTON
-                                && correctedEventY > battleButtonRow && correctedEventY < battleButtonRow + Assets.UJIMON_SIZE_BUTTON) {
+                            if(correctedEventX > battleButtonColInt && correctedEventX < battleButtonColInt + Assets.UJIMON_SIZE_BUTTON
+                                && correctedEventY > battleButtonRowInt && correctedEventY < battleButtonRowInt + Assets.UJIMON_SIZE_BUTTON) {
                                 model.createEnemyTrainer1Team()
                                 model.createEnemyTrainer2Team()
                                 model.createEnemyTrainer3Team()
                                 model.changeModelState(UjimonModel.UjimonState.PLAYER_TURN)
                                 playerTrainer.ujimonSelected = playerTrainer.ujimonTeam[0]
+                                computerEnemy1.ujimonSelected = computerEnemy1.ujimonTeam[0]
+                                computerEnemy2.ujimonSelected = computerEnemy2.ujimonTeam[0]
+                                computerEnemy3.ujimonSelected = computerEnemy3.ujimonTeam[0]
+
                             }
                         }
 
@@ -124,18 +130,19 @@ class UjimonController(val width : Int,
             drawUjimonButtons()
 
             if(model.state == UjimonModel.UjimonState.UJIMON_SELECTED)
-                graphics.drawBitmap( Assets.battleButton, battleButtonCol * cellSide + xOffset, battleButtonRow * cellSide + yOffset)
+                graphics.drawBitmap( Assets.battleButton, battleButtonColInt * cellSide + xOffset, battleButtonRowInt * cellSide + yOffset)
         }
 
         if(model.state == UjimonModel.UjimonState.PLAYER_TURN){
             graphics.drawBitmap(playerTrainer.ujimonSelected!!.imageAsset, battlePlayerUjimonCol * cellSide + xOffset, battlePlayerUjimonRow * cellSide + yOffset)
+            graphics.drawBitmap(computerEnemy1.ujimonSelected!!.imageAsset, battleEnemuUjimonCol * cellSide + xOffset, battleEnemyUjimonRow * cellSide + yOffset)
+            graphics.drawText(battlePlayerUjimonCol * cellSide + xOffset + Assets.UJIMON_SIZE_COMBAT + 1,battlePlayerUjimonRow * cellSide + yOffset,playerTrainer.ujimonSelected!!.name + " HP: " + playerTrainer.ujimonSelected!!.healthPoints.toString() )
+            graphics.drawText(battleEnemuUjimonCol * cellSide + xOffset + Assets.UJIMON_SIZE_COMBAT + 1,battleEnemyUjimonRow * cellSide + yOffset,computerEnemy1.ujimonSelected!!.name + " HP: " + computerEnemy1.ujimonSelected!!.healthPoints.toString())
             graphics.drawBitmap(Assets.attackButton, 8 * cellSide + xOffset, 11 * cellSide + yOffset)
             graphics.drawBitmap(Assets.changeButton, 11 * cellSide + xOffset, 11 * cellSide + yOffset)
+
         }
 
-        if(model.state == UjimonModel.UjimonState.UJIMON_SELECTED){
-            drawBattleButton()
-        }
 
         return graphics.frameBuffer
     }
@@ -169,9 +176,6 @@ class UjimonController(val width : Int,
         }
     }
 
-    private fun drawBattleButton(){
-        graphics.drawBitmap(Assets.battleButton, battleButtonColumn, battleButtonRow)
-    }
 
     override fun playIntroMusic() {
         TODO("Not yet implemented")

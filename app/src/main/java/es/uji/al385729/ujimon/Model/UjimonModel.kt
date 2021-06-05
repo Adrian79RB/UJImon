@@ -22,6 +22,7 @@ class UjimonModel(val playerTrainer : Trainer, val enemyTrainer1 : Trainer, val 
         PLAYER_ATTACK,
         PLAYER_CHOOSE_UJIMON,
         COMPUTER_TURN,
+        WAITING,
         HEALTH_HEALING,
         END
     }
@@ -75,6 +76,23 @@ class UjimonModel(val playerTrainer : Trainer, val enemyTrainer1 : Trainer, val 
             while (ujimonAlreadySelected(ujimonInstances.ujimonArray[selectedUjimon], enemyTrainer3.ujimonTeam))
             enemyTrainer3.ujimonTeam[i] = Ujimon(ujimonInstances.ujimonArray[selectedUjimon].healthPoints, ujimonInstances.ujimonArray[selectedUjimon].name, ujimonInstances.ujimonArray[selectedUjimon].imageAsset, ujimonInstances.ujimonArray[selectedUjimon].buttonAsset, ujimonInstances.ujimonArray[selectedUjimon].dead, ujimonInstances.ujimonArray[selectedUjimon].type)
         }
+    }
+
+    fun computerAttack(computerEnemy : Trainer, player : Trainer): Attack? {
+        var attackSelected : Attack? = null
+        var attackIndex = 0
+        val probability = Random.nextFloat()
+
+        if(probability > 0.1){
+            do{
+                attackIndex = if(computerEnemy.ujimonSelected!!.type == player.ujimonSelected!!.type && probability < 0.5)
+                    Random.nextInt(2, 4)
+                else
+                    Random.nextInt(0, 4)
+                attackSelected = computerEnemy.ujimonSelected!!.ujimonAttacks[attackIndex]
+            } while (attackSelected == null || attackSelected.Cantidad <= 0)
+        }
+        return attackSelected
     }
 
     fun ujimonAlreadySelected(ujimonSelected: Ujimon, ujimonTeam: Array<Ujimon>): Boolean {

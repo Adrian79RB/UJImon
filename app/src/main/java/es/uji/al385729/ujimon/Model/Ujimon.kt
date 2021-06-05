@@ -12,8 +12,8 @@ class Ujimon(var healthPoints: Float, val name: String, val imageAsset: Bitmap?,
     fun establishAttacks(){
         when(type){
             Type.FIRE->{
-                var attack1 = Random.nextInt(0,9)
-                var attack2 : Int;
+                val attack1 = Random.nextInt(0,9)
+                var attack2 : Int
                 do{
                     attack2 = Random.nextInt(0,9)
                 }
@@ -22,8 +22,8 @@ class Ujimon(var healthPoints: Float, val name: String, val imageAsset: Bitmap?,
                 ujimonAttacks[1] = attacksArray.fireAttacksArray[attack2]
             }
             Type.DARKNESS->{
-                var attack1 = Random.nextInt(0,9)
-                var attack2 : Int;
+                val attack1 = Random.nextInt(0,9)
+                var attack2 : Int
                 do{
                     attack2 = Random.nextInt(0,9)
                 }
@@ -32,8 +32,8 @@ class Ujimon(var healthPoints: Float, val name: String, val imageAsset: Bitmap?,
                 ujimonAttacks[1] = attacksArray.darknessAttacksArray[attack2]
             }
             Type.WATER->{
-                var attack1 = Random.nextInt(0,9)
-                var attack2 : Int;
+                val attack1 = Random.nextInt(0,9)
+                var attack2 : Int
                 do{
                     attack2 = Random.nextInt(0,9)
                 }
@@ -42,8 +42,8 @@ class Ujimon(var healthPoints: Float, val name: String, val imageAsset: Bitmap?,
                 ujimonAttacks[1] = attacksArray.waterAttacksArray[attack2]
             }
             Type.PLANT->{
-                var attack1 = Random.nextInt(0,9)
-                var attack2 : Int;
+                val attack1 = Random.nextInt(0,9)
+                var attack2 : Int
                 do{
                     attack2 = Random.nextInt(0,9)
                 }
@@ -52,8 +52,8 @@ class Ujimon(var healthPoints: Float, val name: String, val imageAsset: Bitmap?,
                 ujimonAttacks[1] = attacksArray.plantAttacksArray[attack2]
             }
             Type.GROUND->{
-                var attack1 = Random.nextInt(0,9)
-                var attack2 : Int;
+                val attack1 = Random.nextInt(0,9)
+                var attack2 : Int
                 do{
                     attack2 = Random.nextInt(0,9)
                 }
@@ -62,8 +62,8 @@ class Ujimon(var healthPoints: Float, val name: String, val imageAsset: Bitmap?,
                 ujimonAttacks[1] = attacksArray.groundAttacksArray[attack2]
             }
         }
-        var attack3 = Random.nextInt(0,5)
-        var attack4 : Int;
+        val attack3 = Random.nextInt(0,5)
+        var attack4 : Int
         do{
             attack4 = Random.nextInt(0,5)
         }
@@ -71,6 +71,20 @@ class Ujimon(var healthPoints: Float, val name: String, val imageAsset: Bitmap?,
         ujimonAttacks[2] = attacksArray.normalAttacksArray[attack3]
         ujimonAttacks[3] = attacksArray.normalAttacksArray[attack4]
 
+    }
+
+    fun recieveAttack(attack : Attack) {
+        if(attack.type == Type.NORMAL)
+            healthPoints -= attack.damage
+        else{
+            for (tolerance in ujimonTolerance) {
+                if (tolerance.type == attack.type)
+                    healthPoints -= attack.damage * tolerance.amount
+            }
+        }
+
+        if(healthPoints <= 0)
+            dead = true
     }
 
 }

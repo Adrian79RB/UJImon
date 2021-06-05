@@ -1,7 +1,7 @@
 package es.uji.al385729.ujimon.Model
 
 class AttacksArray() {
-    public val fireAttacksArray : Array<Attack> = Array<Attack>(10){
+    val fireAttacksArray : Array<Attack> = Array<Attack>(10){
         Attack("MagmaRiver", Type.FIRE, 400f, 1f)
         Attack("Dragon breath", Type.FIRE, 300f, 2f)
         Attack("MagmaRiver", Type.FIRE, 400f, 1f)
@@ -17,7 +17,7 @@ class AttacksArray() {
     }
 
 
-    public val darknessAttacksArray : Array<Attack> = Array<Attack>(10){
+    val darknessAttacksArray : Array<Attack> = Array<Attack>(10){
         Attack("Pray to the dark god", Type.DARKNESS, 400f, 1f)
         Attack("Nightmare", Type.DARKNESS, 300f, 2f)
         Attack("Spiritual Beheading", Type.DARKNESS, 200f, 3f)
@@ -30,7 +30,7 @@ class AttacksArray() {
         Attack("Curse", Type.DARKNESS, 50f, 40f )
     }
 
-    public val waterAttacksArray : Array<Attack> = Array<Attack>(10) {
+    val waterAttacksArray : Array<Attack> = Array<Attack>(10) {
         Attack("Tsunami", Type.WATER, 400f, 1f)
         Attack("Storm", Type.WATER, 300f, 2f)
         Attack("Drowning", Type.WATER, 200f, 3f)
@@ -43,7 +43,7 @@ class AttacksArray() {
         Attack("Bubbles", Type.WATER, 50f, 40f)
     }
 
-    public val plantAttacksArray : Array<Attack> = Array<Attack>(10) {
+    val plantAttacksArray : Array<Attack> = Array<Attack>(10) {
         Attack("Solar ray", Type.PLANT, 400f, 1f)
         Attack("Impaling roots", Type.PLANT, 300f, 2f)
         Attack("Sharp Leaf", Type.PLANT, 200f, 3f)
@@ -56,7 +56,7 @@ class AttacksArray() {
         Attack("Whip", Type.PLANT, 50f, 40f)
     }
 
-    public val groundAttacksArray : Array<Attack> = Array<Attack>(10) {
+    val groundAttacksArray : Array<Attack> = Array<Attack>(10) {
         Attack("Earthquake", Type.GROUND, 400f, 1f)
         Attack("Crushing Rock", Type.GROUND, 300f, 2f)
         Attack("Quicksands", Type.GROUND, 200f, 3f)
@@ -69,7 +69,7 @@ class AttacksArray() {
         Attack("Shards", Type.GROUND, 50f, 40f)
     }
 
-    public val normalAttacksArray : Array<Attack> = Array<Attack>(10) {
+    val normalAttacksArray : Array<Attack> = Array<Attack>(10) {
         Attack("Tackle", Type.NORMAL, 100f, 15f)
         Attack("Scratch", Type.NORMAL, 100f, 15f)
         Attack("Hard kick", Type.NORMAL, 100f, 15f)

@@ -72,10 +72,10 @@ class UjimonInstances {
         ujimonArray[8].ujimonTolerance[4] = Tolerance(Type.FIRE, 0.2f)
 
         ujimonArray[9] = Ujimon(1000f, "Serwat", Assets.assetsCombat[9], Assets.assetsButton[9], false, Type.WATER)
-        ujimonArray[3].ujimonTolerance[0] = Tolerance(Type.DARKNESS, 0.7f)
-        ujimonArray[3].ujimonTolerance[1] = Tolerance(Type.GROUND , 1.4f)
-        ujimonArray[3].ujimonTolerance[2] = Tolerance(Type.WATER, 1f)
-        ujimonArray[3].ujimonTolerance[3] = Tolerance(Type.PLANT, 1.8f)
-        ujimonArray[3].ujimonTolerance[4] = Tolerance(Type.FIRE, 0.2f)
+        ujimonArray[9].ujimonTolerance[0] = Tolerance(Type.DARKNESS, 0.7f)
+        ujimonArray[9].ujimonTolerance[1] = Tolerance(Type.GROUND , 1.4f)
+        ujimonArray[9].ujimonTolerance[2] = Tolerance(Type.WATER, 1f)
+        ujimonArray[9].ujimonTolerance[3] = Tolerance(Type.PLANT, 1.8f)
+        ujimonArray[9].ujimonTolerance[4] = Tolerance(Type.FIRE, 0.2f)
     }
 }

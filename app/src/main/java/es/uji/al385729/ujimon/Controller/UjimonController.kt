@@ -56,14 +56,19 @@ class UjimonController(val width : Int,
     private val attackButtonRow = 11
     private val changeButtonCol = 11
     private val changeButtonRow = 11
-
     private val battleButtonRow = 11 * cellSide + xOffset
     private val battleButtonColumn = 18 * cellSide + yOffset
+    private val promptRow = 10
+    private val promptColumn = 11
+    private var waitingTime = 0f
+    private val waitingTimer = 2f
 
     val playerTrainer = Trainer()
     val computerEnemy1 = Trainer()
     val computerEnemy2 = Trainer()
     val computerEnemy3 = Trainer()
+    var chosenAttack : Attack? = null
+    var chosenUjimon : Ujimon? = null
 
     init {
         Assets.createResizedAssets(contex, cellSideInt)
@@ -105,8 +110,8 @@ class UjimonController(val width : Int,
                         }
 
                         if(model.state == UjimonModel.UjimonState.UJIMON_SELECTED){
-                            if(correctedEventX > battleButtonColInt && correctedEventX < battleButtonColInt + Assets.UJIMON_SIZE_BUTTON
-                                && correctedEventY > battleButtonRowInt && correctedEventY < battleButtonRowInt + Assets.UJIMON_SIZE_BUTTON) {
+                            if(correctedEventX >= battleButtonColInt && correctedEventX < battleButtonColInt + Assets.UJIMON_SIZE_BUTTON
+                                && correctedEventY >= battleButtonRowInt && correctedEventY < battleButtonRowInt + Assets.UJIMON_SIZE_BUTTON) {
                                 model.createEnemyTrainer1Team()
                                 model.createEnemyTrainer2Team()
                                 model.createEnemyTrainer3Team()
@@ -130,12 +135,13 @@ class UjimonController(val width : Int,
 
                             }
                         }
+
                         if(model.state == UjimonModel.UjimonState.PLAYER_CHOOSE_UJIMON){
                             var ujimonSelected = false
                             for(i in 0 until 5) {
                                 if (correctedEventX >= buttonStartColumnInt + i * 2 && correctedEventX < buttonStartColumnInt + Assets.UJIMON_SIZE_BUTTON + i * 2
                                     && correctedEventY >= buttonStartRowInt && correctedEventY < buttonStartRowInt + Assets.UJIMON_SIZE_BUTTON) {
-                                    if(playerTrainer.ujimonTeam[i].healthPoints > 0) {
+                                    if(playerTrainer.ujimonTeam[i] != playerTrainer.ujimonSelected && playerTrainer.ujimonTeam[i].healthPoints > 0) {
                                         playerTrainer.ujimonSelected = playerTrainer.ujimonTeam[i]
                                         ujimonSelected = true
                                     }
@@ -143,21 +149,58 @@ class UjimonController(val width : Int,
                                         graphics.drawText(4 * cellSide + xOffset, 12 * cellSide + yOffset, "That ujimon has no HP, he can't fight")
                                     }
                                 }
+                                else if(correctedEventX >= battleButtonColInt && correctedEventX < battleButtonColInt + Assets.UJIMON_SIZE_BUTTON
+                                        && correctedEventY >= battleButtonRowInt && correctedEventY < battleButtonColumn + Assets.UJIMON_SIZE_BUTTON){
+                                    model.changeModelState(UjimonModel.UjimonState.WAITING)
+                                }
                             }
                             if(ujimonSelected){
-                                model.changeModelState(UjimonModel.UjimonState.PLAYER_TURN)
+                                model.changeModelState(UjimonModel.UjimonState.WAITING)
                             }
                         }
+
                         if(model.state == UjimonModel.UjimonState.PLAYER_TURN){
-                            if(correctedEventX > changeButtonCol && correctedEventX< changeButtonCol + Assets.UJIMON_SIZE_BUTTON
-                                && correctedEventY > changeButtonRow && correctedEventY < changeButtonRow + Assets.UJIMON_SIZE_BUTTON){
+                            if(correctedEventX >= changeButtonCol && correctedEventX< changeButtonCol + Assets.UJIMON_SIZE_BUTTON
+                                && correctedEventY >= changeButtonRow && correctedEventY < changeButtonRow + Assets.UJIMON_SIZE_BUTTON){
                                 model.changeModelState(UjimonModel.UjimonState.PLAYER_CHOOSE_UJIMON)
                             }
                         }
-
-
                     }
                 }
+            }
+        }
+
+        if(model.state == UjimonModel.UjimonState.COMPUTER_TURN){
+            when(gameLevel){
+                1 -> {
+                    chosenAttack = model.computerAttack(computerEnemy1, playerTrainer)
+                    chosenUjimon = computerEnemy1.ujimonSelected
+                }
+                2 -> {
+                    chosenAttack = model.computerAttack(computerEnemy2, playerTrainer)
+                    chosenUjimon = computerEnemy2.ujimonSelected
+                }
+                3 -> {
+                    chosenAttack = model.computerAttack(computerEnemy3, playerTrainer)
+                    chosenUjimon = computerEnemy3.ujimonSelected
+                }
+            }
+
+            if(chosenAttack != null) {
+                playerTrainer.ujimonSelected!!.recieveAttack(chosenAttack!!)
+            }
+
+            model.changeModelState(UjimonModel.UjimonState.WAITING)
+        }
+
+        if(model.state == UjimonModel.UjimonState.WAITING){
+            waitingTime += deltaTime
+            if(waitingTime >= waitingTimer){
+                waitingTime = 0f
+                if(model.lastState == UjimonModel.UjimonState.PLAYER_ATTACK || model.lastState == UjimonModel.UjimonState.PLAYER_CHOOSE_UJIMON)
+                    model.changeModelState(UjimonModel.UjimonState.COMPUTER_TURN)
+                else if(model.lastState == UjimonModel.UjimonState.COMPUTER_TURN)
+                    model.changeModelState(UjimonModel.UjimonState.PLAYER_TURN)
             }
         }
     }
@@ -174,7 +217,7 @@ class UjimonController(val width : Int,
                 graphics.drawBitmap( Assets.battleButton, battleButtonColInt * cellSide + xOffset, battleButtonRowInt * cellSide + yOffset)
         }
 
-        if(model.state == UjimonModel.UjimonState.PLAYER_TURN){
+        if(model.state == UjimonModel.UjimonState.PLAYER_TURN || model.state == UjimonModel.UjimonState.COMPUTER_TURN || model.state == UjimonModel.UjimonState.WAITING){
             graphics.drawBitmap(playerTrainer.ujimonSelected!!.imageAsset, battlePlayerUjimonCol * cellSide + xOffset, battlePlayerUjimonRow * cellSide + yOffset)
             graphics.drawText(battlePlayerUjimonCol * cellSide + xOffset + Assets.UJIMON_SIZE_COMBAT + 1,battlePlayerUjimonRow * cellSide + yOffset,playerTrainer.ujimonSelected!!.name + " HP: " + playerTrainer.ujimonSelected!!.healthPoints.toString() )
 
@@ -202,8 +245,21 @@ class UjimonController(val width : Int,
         }
 
         if(model.state == UjimonModel.UjimonState.PLAYER_CHOOSE_UJIMON){
-            graphics.drawText(4 * cellSide + xOffset, cellSide + yOffset, "Choose your pokemon")
+            graphics.drawText(4 * cellSide + xOffset, cellSide + yOffset, "Choose your Ujimon")
             drawPlayerUjimonButtons()
+        }
+
+        if(model.state == UjimonModel.UjimonState.WAITING){
+            if(model.lastState == UjimonModel.UjimonState.COMPUTER_TURN){
+                if(chosenAttack != null)
+                    graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset,  chosenUjimon!!.name + " have used " + chosenAttack!!.Nombre)
+                else
+                    graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset,  chosenUjimon!!.name + " have failed the attack.")
+            }
+            else if(model.lastState == UjimonModel.UjimonState.PLAYER_ATTACK)
+                graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset,  "You have chosen an attack (HAY QUE COMPLETAR ESTO)")
+            else if(model.lastState == UjimonModel.UjimonState.PLAYER_CHOOSE_UJIMON)
+                graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset,  "You have changed your Ujimon to " + playerTrainer.ujimonSelected!!.name)
         }
 
 
@@ -241,14 +297,19 @@ class UjimonController(val width : Int,
 
     private  fun drawPlayerUjimonButtons(){
         var i = 0
-        var k = 0
         for(ujimon in playerTrainer.ujimonTeam) {
-
-            graphics.drawRect((buttonStartColumnInt + Assets.UJIMON_SIZE_BUTTON * i) * cellSide + xOffset, buttonStartRow, Assets.UJIMON_SIZE_BUTTON * cellSide, Assets.UJIMON_SIZE_BUTTON * cellSide, SELECTION_MENU_COLOR)
+            if(ujimon == playerTrainer.ujimonSelected)
+                graphics.drawRect((buttonStartColumnInt + Assets.UJIMON_SIZE_BUTTON * i) * cellSide + xOffset, buttonStartRow, Assets.UJIMON_SIZE_BUTTON * cellSide, Assets.UJIMON_SIZE_BUTTON * cellSide, BUTTON_SELECTED_COLOR)
+            else
+                graphics.drawRect((buttonStartColumnInt + Assets.UJIMON_SIZE_BUTTON * i) * cellSide + xOffset, buttonStartRow, Assets.UJIMON_SIZE_BUTTON * cellSide, Assets.UJIMON_SIZE_BUTTON * cellSide, SELECTION_MENU_COLOR)
             graphics.drawBitmap(ujimon.buttonAsset,(buttonStartColumnInt + Assets.UJIMON_SIZE_BUTTON * i) * cellSide + xOffset, buttonStartRow)
-            k++
+
+            if(ujimon.dead)
+                graphics.drawBitmap(Assets.deadCross, (buttonStartColumnInt + Assets.UJIMON_SIZE_BUTTON * i) * cellSide + xOffset, buttonStartRow)
             i++
         }
+
+        graphics.drawBitmap(Assets.backButton, battleButtonColumn, battleButtonRow)
     }
 
     override fun playIntroMusic() {

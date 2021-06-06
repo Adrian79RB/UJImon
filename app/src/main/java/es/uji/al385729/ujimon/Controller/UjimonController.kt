@@ -20,7 +20,7 @@ class UjimonController(val width : Int,
         private val BACKGROUND_COLOR = Color.rgb(0xff, 0xff, 0xff)
         private val SELECTION_MENU_COLOR = Color.rgb(0xC5, 0xC0, 0x24)
         private val BUTTON_SELECTED_COLOR = Color.rgb(0xDF, 0x32, 0x32)
-        private val TEXT_COLOR = Color.rgb(0xFF, 0x6A, 0x98)
+        private val TEXT_COLOR = Color.rgb(0xF8, 0xFB, 0xF9)
     }
 
     private lateinit var soundPool: SoundPool
@@ -45,23 +45,26 @@ class UjimonController(val width : Int,
     private val buttonStartSecondRowInt = 7
     private val battleButtonRowInt = 11
     private val battleButtonColInt = 17
-    private val battlePlayerUjimonRow = 6
-    private val battlePlayerUjimonCol = 1
-    private val battleEnemyUjimonRow = 1
-    private val battleEnemuUjimonCol = 10
+    private val battlePlayerUjimonRow = 7
+    private val battlePlayerUjimonCol = 3
+    private val battleEnemyUjimonRow = 3
+    private val battleEnemuUjimonCol = 15
     private val playerTeamStartColumnInt = 14
     private var ujimonChoosen = 0
     private var gameLevel = 1
-    private val attackButtonCol = 8
+    private val attackButtonCol = 11
     private val attackButtonRow = 11
-    private val changeButtonCol = 11
+    private val changeButtonCol = 14
     private val changeButtonRow = 11
     private val battleButtonRow = 11 * cellSide + xOffset
     private val battleButtonColumn = 18 * cellSide + yOffset
-    private val promptRow = 10
-    private val promptColumn = 11
+    private val promptRow = 3
+    private val promptColumn = 2
     private var waitingTime = 0f
     private val waitingTimer = 2f
+    private val prompBoxPos = 1
+    private val attackBoxCol = 11
+    private val attackBoxRow = 8
 
     val playerTrainer = Trainer()
     val computerEnemy1 = Trainer()
@@ -69,6 +72,14 @@ class UjimonController(val width : Int,
     val computerEnemy3 = Trainer()
     var chosenAttack : Attack? = null
     var chosenUjimon : Ujimon? = null
+
+    private val groundTextColor = Color.rgb(0x42, 0x31, 0x0A)
+    private val fireTextColor = Color.rgb(0xF2, 0x38, 0x13)
+    private val waterTextColor = Color.rgb(0x24, 0xA1, 0xED)
+    private val darkTextColor = Color.rgb(0x16, 0x16, 0x17)
+    private val plantTextColor = Color.rgb(0x0F, 0xED, 0x34)
+    private val normalTextColor = Color.rgb(0x8C, 0x8C, 0x8C)
+
 
     init {
         Assets.createResizedAssets(contex, cellSideInt)
@@ -161,7 +172,7 @@ class UjimonController(val width : Int,
                         if(model.state == UjimonModel.UjimonState.PLAYER_ATTACK){
                             chosenAttack = null
                             for (i in 0 until 4){
-                                if(correctedEventX>= changeButtonCol && correctedEventY >= changeButtonRow+i-1 && correctedEventY < changeButtonRow + i){
+                                if(correctedEventX>= changeButtonCol && correctedEventY >= changeButtonRow+i-2 && correctedEventY < changeButtonRow + i+1){
                                     chosenAttack = playerTrainer.ujimonSelected!!.ujimonAttacks[i]
                                     playerTrainer.ujimonSelected!!.ujimonAttacks[i].actualAmount-=1
                                 }
@@ -264,6 +275,7 @@ class UjimonController(val width : Int,
         graphics.clear(BACKGROUND_COLOR)
         graphics.setTextColor(TEXT_COLOR)
 
+
         if(model.state == UjimonModel.UjimonState.UJIMON_SELECTION || model.state == UjimonModel.UjimonState.UJIMON_SELECTED){
             graphics.drawText(4 * cellSide + xOffset, cellSide + yOffset, "Choose your Ujimon Team")
             drawUjimonButtons()
@@ -273,8 +285,10 @@ class UjimonController(val width : Int,
         }
 
         if(model.state == UjimonModel.UjimonState.PLAYER_TURN || model.state == UjimonModel.UjimonState.COMPUTER_TURN || model.state == UjimonModel.UjimonState.WAITING || model.state == UjimonModel.UjimonState.PLAYER_ATTACK){
+            graphics.drawBitmap(Assets.battlefield, 0f,0f)
+            graphics.drawBitmap(Assets.promptBox, prompBoxPos * cellSide + xOffset,prompBoxPos * cellSide + yOffset )
             graphics.drawBitmap(playerTrainer.ujimonSelected!!.imageAsset, battlePlayerUjimonCol * cellSide + xOffset, battlePlayerUjimonRow * cellSide + yOffset)
-            graphics.drawText(battlePlayerUjimonCol * cellSide + xOffset + Assets.UJIMON_SIZE_COMBAT + 1,battlePlayerUjimonRow * cellSide + yOffset,playerTrainer.ujimonSelected!!.name + " HP: " + playerTrainer.ujimonSelected!!.healthPoints.toString() )
+            graphics.drawText(battlePlayerUjimonCol * cellSide + xOffset + Assets.UJIMON_SIZE_COMBAT + 1,(battlePlayerUjimonRow+ Assets.UJIMON_SIZE_COMBAT + 1) * cellSide + yOffset,playerTrainer.ujimonSelected!!.name + " HP: " + playerTrainer.ujimonSelected!!.healthPoints.toString() )
 
             when(gameLevel){
                 1->{
@@ -378,10 +392,32 @@ class UjimonController(val width : Int,
 
     private  fun drawAttacksButtons(ujimon : Ujimon){
         var i = 0
+        graphics.drawBitmap(Assets.attackBox, attackBoxCol * cellSide + xOffset, attackBoxRow * cellSide + yOffset)
         for(attack in ujimon.ujimonAttacks){
-            graphics.drawText((attackButtonCol) * cellSide + xOffset, (attackButtonRow+i) * cellSide + yOffset , attack.Nombre +  " " + attack.actualAmount + "/" + attack.totalAmount)
+            when(attack.type){
+                Type.FIRE->{
+                    graphics.setTextColor(fireTextColor)
+                }
+                Type.WATER->{
+                    graphics.setTextColor(waterTextColor)
+                }
+                Type.DARKNESS->{
+                    graphics.setTextColor(darkTextColor)
+                }
+                Type.GROUND->{
+                    graphics.setTextColor(groundTextColor)
+                }
+                Type.PLANT->{
+                    graphics.setTextColor(plantTextColor)
+                }
+                Type.NORMAL->{
+                    graphics.setTextColor(normalTextColor)
+                }
+            }
+            graphics.drawText((attackButtonCol+1) * cellSide + xOffset, (attackButtonRow+i-1) * cellSide + yOffset , attack.Nombre +  " " + attack.actualAmount + "/" + attack.totalAmount)
             i++
         }
+        graphics.setTextColor(TEXT_COLOR)
     }
 
     override fun playIntroMusic() {

@@ -9,6 +9,10 @@ object Assets {
 
     const val UJIMON_SIZE_COMBAT = 5
     const val UJIMON_SIZE_BUTTON = 2
+    const val BATTLEFIELD_WIDTH = 24
+    const val BATTLEFIELD_HEIGHT = 14
+    const val PROMPT_WIDTH = 12
+    const val PROMPT_HEIGHT = 6
     var assetsCombat : Array<Bitmap?> = Array(10){null}
     var assetsFromBack : Array<Bitmap?> = Array(10){null}
     var assetsButton : Array<Bitmap?> = Array(10){null}
@@ -17,6 +21,11 @@ object Assets {
     var changeButton : Bitmap? = null
     var backButton : Bitmap? = null
     var deadCross : Bitmap? = null
+    var battlefield : Bitmap? = null
+    var promptBox : Bitmap? = null
+    var attackBox : Bitmap? = null
+
+
 
 
     fun createResizedAssets(context: Context, cellSize : Int){
@@ -90,5 +99,15 @@ object Assets {
 
         deadCross?.recycle()
         deadCross = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(resources, R.drawable.dead_cross), cellSize * UJIMON_SIZE_BUTTON, cellSize * UJIMON_SIZE_BUTTON, true)
+
+        battlefield?.recycle()
+        battlefield = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(resources,R.drawable.battlefield), cellSize * BATTLEFIELD_WIDTH, cellSize * BATTLEFIELD_HEIGHT, true)
+
+        promptBox?.recycle()
+        promptBox = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(resources,R.drawable.prompt_box), cellSize * PROMPT_WIDTH, cellSize * PROMPT_HEIGHT, true)
+
+        attackBox?.recycle()
+       attackBox = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(resources,R.drawable.attack_box), cellSize * PROMPT_WIDTH, cellSize * PROMPT_HEIGHT, true)
+
     }
 }

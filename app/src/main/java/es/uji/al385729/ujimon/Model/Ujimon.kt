@@ -87,4 +87,17 @@ class Ujimon(var healthPoints: Float, val name: String, val imageAsset: Bitmap?,
             dead = true
     }
 
+    fun healHealthPoints() {
+        healthPoints = 1000.0f
+
+        if(dead)
+            dead = false
+    }
+
+    fun recoverEnergy() {
+        for(attack in ujimonAttacks){
+            attack.currentAmount = attack.totalAmount
+        }
+    }
+
 }

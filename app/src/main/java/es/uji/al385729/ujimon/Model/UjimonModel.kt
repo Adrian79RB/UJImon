@@ -93,7 +93,7 @@ class UjimonModel(val playerTrainer : Trainer, val enemyTrainer1 : Trainer, val 
                 else
                     Random.nextInt(0, 4)
                 attackSelected = computerEnemy.ujimonSelected!!.ujimonAttacks[attackIndex]
-            } while (attackSelected == null || attackSelected.actualAmount <= 0)
+            } while (attackSelected == null || attackSelected.currentAmount <= 0)
         }
         return attackSelected
     }
@@ -121,5 +121,25 @@ class UjimonModel(val playerTrainer : Trainer, val enemyTrainer1 : Trainer, val 
                 break
             }
         }
+    }
+
+    fun checkPlayerUjimonTeamDead() : Boolean {
+        var ujimonAlive = 0
+        for (ujimon in playerTrainer.ujimonTeam) {
+            if (!ujimon.dead)
+                ujimonAlive++
+        }
+
+        return ujimonAlive == 0
+    }
+
+    fun checkEnemyUjimonTeamDead(currentEnemy : Trainer) : Boolean {
+        var ujimonAlive = 0
+        for(ujimon in currentEnemy.ujimonTeam){
+            if(!ujimon.dead && ujimon.type != Type.NORMAL)
+                ujimonAlive++
+        }
+
+        return ujimonAlive == 0
     }
 }

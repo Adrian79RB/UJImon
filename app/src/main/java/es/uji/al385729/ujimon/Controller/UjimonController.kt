@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.media.SoundPool
 import es.uji.al385729.ujimon.Assets
 import es.uji.al385729.ujimon.Model.*
+import es.uji.vj1229.framework.AnimatedBitmap
 import es.uji.vj1229.framework.Graphics
 import es.uji.vj1229.framework.IGameController
 import es.uji.vj1229.framework.TouchHandler
@@ -54,7 +55,7 @@ class UjimonController(val width : Int,
     private val battleButtonColInt = 17
     private val battlePlayerUjimonRow = 7
     private val battlePlayerUjimonCol = 3
-    private val battleEnemyUjimonRow = 3
+    private val battleEnemyUjimonRow =2
     private val battleEnemuUjimonCol = 15
     private val playerTeamStartColumnInt = 14
     private var ujimonChoosen = 0
@@ -81,13 +82,28 @@ class UjimonController(val width : Int,
     var chosenAttack : Attack? = null
     var chosenUjimon : Ujimon? = null
 
+
+    private var animation: AnimatedBitmap? = null
+    private var xAnimation : Int = 0
+    private var yAnimation : Int = 0
+
+
+
     init {
+        Assets.loadDrawableAssets(contex)
         Assets.createResizedAssets(contex, cellSideInt)
         graphics = Graphics(width, height)
         model = UjimonModel(playerTrainer, computerEnemy1, computerEnemy2, computerEnemy3, this)
     }
 
     override fun onUpdate(deltaTime: Float, touchEvents: MutableList<TouchHandler.TouchEvent>?) {
+        animation?.apply {
+            if (isEnded)
+                animation = null
+            else
+                update(deltaTime)
+        }
+
         if(touchEvents != null){
             for (event in touchEvents){
                 val correctedEventX = ((event.x - xOffset)/cellSide).toInt()
@@ -179,7 +195,36 @@ class UjimonController(val width : Int,
                                     }
                                 }
                             }
+
                             if(chosenAttack != null) {
+                                xAnimation = battleEnemuUjimonCol
+                                yAnimation = battleEnemyUjimonRow
+                                when(chosenAttack!!.type){
+                                    Type.FIRE->{
+                                        animation = Assets.fireAttack
+                                        drawAnimation()
+                                    }
+                                    Type.WATER->{
+                                        animation = Assets.waterAttack
+                                        drawAnimation()
+                                    }
+                                    Type.NORMAL->{
+                                        animation = Assets.darknessAttack
+                                        drawAnimation()
+                                    }
+                                    Type.PLANT->{
+                                        animation = Assets.plantAttack
+                                        drawAnimation()
+                                    }
+                                    Type.GROUND->{
+                                        animation = Assets.groundAttack
+                                        drawAnimation()
+                                    }
+                                    Type.DARKNESS->{
+                                        animation = Assets.darknessAttack
+                                        drawAnimation()
+                                    }
+                                }
                                 when(gameLevel){
                                     1->{
                                         computerEnemy1.ujimonSelected!!.recieveAttack(chosenAttack!!)
@@ -287,6 +332,34 @@ class UjimonController(val width : Int,
             }
 
             if(chosenAttack != null) {
+                xAnimation = battlePlayerUjimonCol
+                yAnimation = battlePlayerUjimonRow
+                when(chosenAttack!!.type){
+                    Type.FIRE->{
+                        animation = Assets.fireAttack
+                        drawAnimation()
+                    }
+                    Type.WATER->{
+                        animation = Assets.waterAttack
+                        drawAnimation()
+                    }
+                    Type.NORMAL->{
+                        animation = Assets.darknessAttack
+                        drawAnimation()
+                    }
+                    Type.PLANT->{
+                        animation = Assets.plantAttack
+                        drawAnimation()
+                    }
+                    Type.GROUND->{
+                        animation = Assets.groundAttack
+                        drawAnimation()
+                    }
+                    Type.DARKNESS->{
+                        animation = Assets.darknessAttack
+                        drawAnimation()
+                    }
+                }
                 playerTrainer.ujimonSelected!!.recieveAttack(chosenAttack!!)
             }
 
@@ -358,6 +431,7 @@ class UjimonController(val width : Int,
                 graphics.drawBitmap(Assets.changeButton, changeButtonCol * cellSide + xOffset, changeButtonRow * cellSide + yOffset)
             }
 
+
         }
 
         if(model.state == UjimonModel.UjimonState.PLAYER_TURN){
@@ -374,6 +448,9 @@ class UjimonController(val width : Int,
         }
 
         if(model.state == UjimonModel.UjimonState.WAITING){
+            if(animation!=null){
+                graphics.drawBitmap(animation?.currentFrame, xAnimation * cellSide + xOffset, yAnimation * cellSide + yOffset)
+            }
             if(model.lastState == UjimonModel.UjimonState.COMPUTER_TURN){
                 if(chosenAttack != null)
                     graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset,  chosenUjimon!!.name + " have used " + chosenAttack!!.Nombre)
@@ -487,6 +564,13 @@ class UjimonController(val width : Int,
             i++
         }
         graphics.setTextColor(TEXT_COLOR)
+    }
+
+
+
+    private fun drawAnimation(){
+        animation?.let {  graphics.drawBitmap(it.currentFrame, xAnimation * cellSide + xOffset, yAnimation * cellSide + yOffset) }
+        animation?.restart()
     }
 
     override fun playIntroMusic() {

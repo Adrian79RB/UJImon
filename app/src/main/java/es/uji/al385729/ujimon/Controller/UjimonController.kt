@@ -184,7 +184,7 @@ class UjimonController(val width : Int,
                                 }
                                 else if(correctedEventX >= battleButtonColInt && correctedEventX < battleButtonColInt + Assets.UJIMON_SIZE_BUTTON
                                         && correctedEventY >= battleButtonRowInt && correctedEventY < battleButtonColumn + Assets.UJIMON_SIZE_BUTTON){
-                                    model.changeModelState(UjimonModel.UjimonState.WAITING)
+                                    model.changeModelState(UjimonModel.UjimonState.PLAYER_TURN)
                                 }
                             }
                             if(ujimonSelected){
@@ -530,9 +530,6 @@ class UjimonController(val width : Int,
             }
             i++
         }
-        graphics.setTextSize(20)
-        graphics.drawText(9 * cellSide + xOffset, 13 * cellSide + yOffset, "Total Score: $playerScore")
-        graphics.drawBitmap( Assets.replayButton, battleButtonColumn, battleButtonRow)
     }
 
     private  fun drawPlayerUjimonButtons(){
@@ -545,13 +542,12 @@ class UjimonController(val width : Int,
             graphics.drawBitmap(ujimon.buttonAsset,(buttonStartColumnInt + Assets.UJIMON_SIZE_BUTTON * i) * cellSide + xOffset, buttonStartRow)
 
             if(ujimon.dead)
-                graphics.drawBitmap(Assets.deadCross, (buttonStartColumnInt + (Assets.UJIMON_SIZE_BUTTON + 2) * i) * cellSide + xOffset, healthButtonRow * cellSide + yOffset)
-
-            graphics.drawText(9 * cellSide + xOffset, (7 + i) * cellSide + yOffset,"${ujimon.name}: ${ujimon.healthPoints}")
+                graphics.drawBitmap(Assets.deadCross, (buttonStartColumnInt + Assets.UJIMON_SIZE_BUTTON * i) * cellSide + xOffset, buttonStartRow)
             i++
         }
 
-        graphics.drawBitmap(Assets.backButton, battleButtonColumn, battleButtonRow)
+        if(!playerTrainer.ujimonSelected!!.dead)
+            graphics.drawBitmap(Assets.backButton, battleButtonColumn, battleButtonRow)
     }
 
     private fun drawPlayerHealingButtons() {
@@ -591,9 +587,15 @@ class UjimonController(val width : Int,
             graphics.drawText((buttonStartColumnInt + (Assets.UJIMON_SIZE_BUTTON + 2) * i) * cellSide + xOffset, (buttonStartRowInt + Assets.UJIMON_SIZE_BUTTON + 1) * cellSide + yOffset, "HP: " + ujimon.healthPoints + " / 1000.0")
 
             if(ujimon.dead)
-                graphics.drawBitmap(Assets.deadCross, (buttonStartColumnInt + Assets.UJIMON_SIZE_BUTTON * i) * cellSide + xOffset, buttonStartRow)
+                graphics.drawBitmap(Assets.deadCross, (buttonStartColumnInt + (Assets.UJIMON_SIZE_BUTTON + 2) * i) * cellSide + xOffset, buttonStartRow)
+
+            graphics.drawText(9 * cellSide + xOffset, (7 + i) * cellSide + yOffset,"${ujimon.name}: ${ujimon.healthPoints}")
             i++
         }
+
+        graphics.setTextSize(20)
+        graphics.drawText(9 * cellSide + xOffset, 13 * cellSide + yOffset, "Total Score: $playerScore")
+        graphics.drawBitmap( Assets.replayButton, battleButtonColumn, battleButtonRow)
     }
 
 

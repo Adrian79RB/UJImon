@@ -26,6 +26,7 @@ object Assets {
     var battlefield : Bitmap? = null
     var promptBox : Bitmap? = null
     var attackBox : Bitmap? = null
+    var replayButton : Bitmap? = null
 
     private var plant : SpriteSheet? = null
     var plantAttack : AnimatedBitmap? = null
@@ -137,6 +138,9 @@ object Assets {
 
         backButton?.recycle()
         backButton = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(resources, R.drawable.back_button), cellSize * UJIMON_SIZE_BUTTON, cellSize * UJIMON_SIZE_BUTTON, true)
+
+        replayButton?.recycle()
+        replayButton = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(resources, R.drawable.replay_button), cellSize * UJIMON_SIZE_BUTTON, cellSize* UJIMON_SIZE_BUTTON, true)
 
         deadCross?.recycle()
         deadCross = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(resources, R.drawable.dead_cross), cellSize * UJIMON_SIZE_BUTTON, cellSize * UJIMON_SIZE_BUTTON, true)

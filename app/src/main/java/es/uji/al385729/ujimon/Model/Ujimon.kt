@@ -79,12 +79,14 @@ class Ujimon(var healthPoints: Float, val name: String, val imageAsset: Bitmap?,
         else{
             for (tolerance in ujimonTolerance) {
                 if (tolerance.type == attack.type)
-                    healthPoints -= attack.damage * tolerance.amount
+                    healthPoints = Math.round(healthPoints - (attack.damage * tolerance.amount)).toFloat()
             }
         }
 
-        if(healthPoints <= 0)
+        if(healthPoints <= 0) {
             dead = true
+            healthPoints = 0f
+        }
     }
 
     fun healHealthPoints() {

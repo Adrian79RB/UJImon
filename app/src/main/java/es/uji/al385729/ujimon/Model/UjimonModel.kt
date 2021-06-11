@@ -83,7 +83,7 @@ class UjimonModel(val playerTrainer : Trainer, val enemyTrainer1 : Trainer, val 
 
     fun computerAttack(computerEnemy : Trainer, player : Trainer): Attack? {
         var attackSelected : Attack? = null
-        var attackIndex = 0
+        var attackIndex: Int
         val probability = Random.nextFloat()
 
         if(probability > 0.1){
@@ -141,5 +141,13 @@ class UjimonModel(val playerTrainer : Trainer, val enemyTrainer1 : Trainer, val 
         }
 
         return ujimonAlive == 0
+    }
+
+    fun countPlayerScore(): Float {
+        var playerScore = 0f
+        for(ujimon in playerTrainer.ujimonTeam)
+            playerScore += ujimon.healthPoints
+        
+        return playerScore
     }
 }

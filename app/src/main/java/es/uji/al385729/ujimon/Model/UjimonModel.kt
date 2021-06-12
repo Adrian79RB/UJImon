@@ -12,7 +12,8 @@ class UjimonModel(val playerTrainer : Trainer, val enemyTrainer1 : Trainer, val 
         fun playHealingMusic()
         fun playVictory()
         fun playDefeated()
-        fun playAttackSound()
+        fun playNormalAttackSound()
+        fun playPowerAttackSound()
     }
 
     enum class UjimonState {
@@ -150,4 +151,118 @@ class UjimonModel(val playerTrainer : Trainer, val enemyTrainer1 : Trainer, val 
         
         return playerScore
     }
+
+    fun establishTrainersUjimon() {
+        playerTrainer.ujimonSelected = playerTrainer.ujimonTeam[0]
+        enemyTrainer1.ujimonSelected = enemyTrainer1.ujimonTeam[0]
+        enemyTrainer2.ujimonSelected = enemyTrainer2.ujimonTeam[0]
+        enemyTrainer3.ujimonSelected = enemyTrainer3.ujimonTeam[0]
+        for(ujimon in playerTrainer.ujimonTeam){
+            ujimon.establishAttacks()
+        }
+        for(ujimon in enemyTrainer1.ujimonTeam){
+            ujimon.establishAttacks()
+        }
+        for(ujimon in enemyTrainer2.ujimonTeam){
+            ujimon.establishAttacks()
+        }
+        for(ujimon in enemyTrainer3.ujimonTeam){
+            ujimon.establishAttacks()
+        }
+    }
+
+    fun chooseUjimonAttack(i: Int): Attack? {
+        playerTrainer.ujimonSelected!!.ujimonAttacks[i].currentAmount-=1
+        return playerTrainer.ujimonSelected!!.ujimonAttacks[i]
+    }
+
+    fun playerAttackToEnemy(gameLevel: Int, chosenAttack : Attack) {
+        when (gameLevel) {
+            1 -> {
+                enemyTrainer1.ujimonSelected!!.recieveAttack(chosenAttack)
+                if (enemyTrainer1.ujimonSelected!!.dead) {
+                    if (checkEnemyUjimonTeamDead(enemyTrainer1))
+                        changeModelState(UjimonState.HEALTH_HEALING)
+                    else {
+                        for (ujimon in enemyTrainer1.ujimonTeam) {
+                            if (!ujimon.dead && ujimon.type != Type.NORMAL) {
+                                enemyTrainer1.ujimonSelected = ujimon
+                                break
+                            }
+                        }
+                    }
+                }
+            }
+            2 -> {
+                enemyTrainer2.ujimonSelected!!.recieveAttack(chosenAttack)
+                if (enemyTrainer2.ujimonSelected!!.dead) {
+                    if (checkEnemyUjimonTeamDead(enemyTrainer2))
+                        changeModelState(UjimonState.HEALTH_HEALING)
+                    else {
+                        for (ujimon in enemyTrainer2.ujimonTeam) {
+                            if (!ujimon.dead && ujimon.type != Type.NORMAL) {
+                                enemyTrainer2.ujimonSelected = ujimon
+                                break
+                            }
+                        }
+                    }
+                }
+            }
+            3 -> {
+                enemyTrainer3.ujimonSelected!!.recieveAttack(chosenAttack)
+                if (enemyTrainer3.ujimonSelected!!.dead) {
+                    if (checkEnemyUjimonTeamDead(enemyTrainer3))
+                        changeModelState(UjimonState.HEALTH_HEALING)
+                    else {
+                        for (ujimon in enemyTrainer3.ujimonTeam) {
+                            if (!ujimon.dead && ujimon.type != Type.NORMAL) {
+                                enemyTrainer3.ujimonSelected = ujimon
+                                break
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    fun healUjimonSelected(index: Int) {
+        playerTrainer.ujimonTeam[index].healHealthPoints()
+        playerTrainer.recoverTeamEnergy()
+    }
+
+    fun chooseEnemyUjimonAttack(gameLevel: Int): Attack? {
+        var chosenAttack : Attack? = null
+
+        when(gameLevel){
+            1 -> {
+                chosenAttack = computerAttack(enemyTrainer1, playerTrainer)
+            }
+            2 -> {
+                chosenAttack = computerAttack(enemyTrainer2, playerTrainer)
+            }
+            3 -> {
+                chosenAttack = computerAttack(enemyTrainer3, playerTrainer)
+            }
+        }
+        playerTrainer.ujimonSelected!!.recieveAttack(chosenAttack!!)
+
+        return chosenAttack
+    }
+
+    fun chooseEnemyActiveUjimon(gameLevel: Int): Ujimon? {
+        return when(gameLevel){
+            1 -> {
+                enemyTrainer1.ujimonSelected
+            }
+            2 -> {
+                enemyTrainer2.ujimonSelected
+            }
+            else -> {
+                enemyTrainer3.ujimonSelected
+            }
+        }
+
+    }
+
 }

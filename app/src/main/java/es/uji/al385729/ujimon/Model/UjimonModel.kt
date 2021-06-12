@@ -50,7 +50,7 @@ class UjimonModel(val playerTrainer : Trainer, val enemyTrainer1 : Trainer, val 
         var selectedUjimon : Int
         for( i in 0 until 2){
             do {
-                selectedUjimon = Random.nextInt(0,9)
+                selectedUjimon = Random.nextInt(0,10)
             }
             while (ujimonAlreadySelected(ujimonInstances.ujimonArray[selectedUjimon], enemyTrainer1.ujimonTeam))
             enemyTrainer1.ujimonTeam[i] = Ujimon(ujimonInstances.ujimonArray[selectedUjimon].healthPoints, ujimonInstances.ujimonArray[selectedUjimon].name, ujimonInstances.ujimonArray[selectedUjimon].imageAsset, ujimonInstances.ujimonArray[selectedUjimon].buttonAsset,ujimonInstances.ujimonArray[selectedUjimon].dead, ujimonInstances.ujimonArray[selectedUjimon].type)
@@ -62,7 +62,7 @@ class UjimonModel(val playerTrainer : Trainer, val enemyTrainer1 : Trainer, val 
         var selectedUjimon : Int
         for( i in 0 until 3){
             do {
-                selectedUjimon = Random.nextInt(0,9)
+                selectedUjimon = Random.nextInt(0,10)
             }
             while (ujimonAlreadySelected(ujimonInstances.ujimonArray[selectedUjimon], enemyTrainer2.ujimonTeam))
             enemyTrainer2.ujimonTeam[i] = Ujimon(ujimonInstances.ujimonArray[selectedUjimon].healthPoints, ujimonInstances.ujimonArray[selectedUjimon].name, ujimonInstances.ujimonArray[selectedUjimon].imageAsset, ujimonInstances.ujimonArray[selectedUjimon].buttonAsset, ujimonInstances.ujimonArray[selectedUjimon].dead, ujimonInstances.ujimonArray[selectedUjimon].type)
@@ -74,7 +74,7 @@ class UjimonModel(val playerTrainer : Trainer, val enemyTrainer1 : Trainer, val 
         var selectedUjimon : Int
         for( i in 0 until 4){
             do {
-                selectedUjimon = Random.nextInt(0,9)
+                selectedUjimon = Random.nextInt(0,10)
             }
             while (ujimonAlreadySelected(ujimonInstances.ujimonArray[selectedUjimon], enemyTrainer3.ujimonTeam))
             enemyTrainer3.ujimonTeam[i] = Ujimon(ujimonInstances.ujimonArray[selectedUjimon].healthPoints, ujimonInstances.ujimonArray[selectedUjimon].name, ujimonInstances.ujimonArray[selectedUjimon].imageAsset, ujimonInstances.ujimonArray[selectedUjimon].buttonAsset, ujimonInstances.ujimonArray[selectedUjimon].dead, ujimonInstances.ujimonArray[selectedUjimon].type)
@@ -83,19 +83,23 @@ class UjimonModel(val playerTrainer : Trainer, val enemyTrainer1 : Trainer, val 
     }
 
     fun computerAttack(computerEnemy : Trainer, player : Trainer): Attack? {
-        var attackSelected : Attack? = null
+        var attackSelected: Attack? = null
         var attackIndex: Int
         val probability = Random.nextFloat()
 
-        if(probability > 0.1){
-            do{
-                attackIndex = if(computerEnemy.ujimonSelected!!.type == player.ujimonSelected!!.type && probability < 0.5)
-                    Random.nextInt(2, 4)
-                else
-                    Random.nextInt(0, 4)
-                attackSelected = computerEnemy.ujimonSelected!!.ujimonAttacks[attackIndex]
-            } while (attackSelected == null || attackSelected.currentAmount <= 0)
+        do {
+            attackIndex = if (computerEnemy.ujimonSelected.type == player.ujimonSelected.type && probability < 0.5)
+                Random.nextInt(2, 4)
+            else
+                Random.nextInt(0, 4)
+            attackSelected = computerEnemy.ujimonSelected.ujimonAttacks[attackIndex]
+            computerEnemy.ujimonSelected.ujimonAttacks[attackIndex].currentAmount--
+        } while (attackSelected == null || attackSelected.currentAmount <= 0)
+
+        if(probability < 0.1){
+            attackSelected = null
         }
+
         return attackSelected
     }
 
@@ -108,23 +112,23 @@ class UjimonModel(val playerTrainer : Trainer, val enemyTrainer1 : Trainer, val 
         return false
     }
     fun askEffectiveness(gameLevel : Int, attack: Attack): String {
-        var message : String = ""
+        var message = ""
         when(gameLevel){
             1->{
-                message = enemyTrainer1.ujimonSelected!!.attackEffectiveness(attack)
+                message = enemyTrainer1.ujimonSelected.attackEffectiveness(attack)
             }
             2->{
-                message = enemyTrainer2.ujimonSelected!!.attackEffectiveness(attack)
+                message = enemyTrainer2.ujimonSelected.attackEffectiveness(attack)
             }
             3->{
-                message = enemyTrainer3.ujimonSelected!!.attackEffectiveness(attack)
+                message = enemyTrainer3.ujimonSelected.attackEffectiveness(attack)
             }
         }
         return  message
     }
 
     fun askEnemyEffectiveness(attack: Attack): String {
-        return playerTrainer.ujimonSelected!!.attackEffectiveness(attack)
+        return playerTrainer.ujimonSelected.attackEffectiveness(attack)
     }
 
     fun playerSelectUjimon(ujimonSelected: Ujimon, ujimonTeam: Array<Ujimon>) {
@@ -191,17 +195,23 @@ class UjimonModel(val playerTrainer : Trainer, val enemyTrainer1 : Trainer, val 
     }
 
     fun chooseUjimonAttack(i: Int): Attack? {
-        playerTrainer.ujimonSelected!!.ujimonAttacks[i].currentAmount-=1
-        return playerTrainer.ujimonSelected!!.ujimonAttacks[i]
+        val probability = Random.nextFloat()
+        playerTrainer.ujimonSelected.ujimonAttacks[i].currentAmount-=1
+        return if(probability > 0.1){
+            playerTrainer.ujimonSelected.ujimonAttacks[i]
+        }
+        else
+            null
     }
 
     fun playerAttackToEnemy(gameLevel: Int, chosenAttack : Attack) {
         when (gameLevel) {
             1 -> {
-                enemyTrainer1.ujimonSelected!!.recieveAttack(chosenAttack)
-                if (enemyTrainer1.ujimonSelected!!.dead) {
-                    if (checkEnemyUjimonTeamDead(enemyTrainer1))
+                enemyTrainer1.ujimonSelected.recieveAttack(chosenAttack)
+                if (enemyTrainer1.ujimonSelected.dead) {
+                    if (checkEnemyUjimonTeamDead(enemyTrainer1)){
                         changeModelState(UjimonState.HEALTH_HEALING)
+                    }
                     else {
                         for (ujimon in enemyTrainer1.ujimonTeam) {
                             if (!ujimon.dead && ujimon.type != Type.NORMAL) {
@@ -213,10 +223,11 @@ class UjimonModel(val playerTrainer : Trainer, val enemyTrainer1 : Trainer, val 
                 }
             }
             2 -> {
-                enemyTrainer2.ujimonSelected!!.recieveAttack(chosenAttack)
-                if (enemyTrainer2.ujimonSelected!!.dead) {
-                    if (checkEnemyUjimonTeamDead(enemyTrainer2))
+                enemyTrainer2.ujimonSelected.recieveAttack(chosenAttack)
+                if (enemyTrainer2.ujimonSelected.dead) {
+                    if (checkEnemyUjimonTeamDead(enemyTrainer2)){
                         changeModelState(UjimonState.HEALTH_HEALING)
+                    }
                     else {
                         for (ujimon in enemyTrainer2.ujimonTeam) {
                             if (!ujimon.dead && ujimon.type != Type.NORMAL) {
@@ -228,10 +239,10 @@ class UjimonModel(val playerTrainer : Trainer, val enemyTrainer1 : Trainer, val 
                 }
             }
             3 -> {
-                enemyTrainer3.ujimonSelected!!.recieveAttack(chosenAttack)
-                if (enemyTrainer3.ujimonSelected!!.dead) {
+                enemyTrainer3.ujimonSelected.recieveAttack(chosenAttack)
+                if (enemyTrainer3.ujimonSelected.dead) {
                     if (checkEnemyUjimonTeamDead(enemyTrainer3))
-                        changeModelState(UjimonState.HEALTH_HEALING)
+                        changeModelState(UjimonState.END)
                     else {
                         for (ujimon in enemyTrainer3.ujimonTeam) {
                             if (!ujimon.dead && ujimon.type != Type.NORMAL) {
@@ -247,7 +258,7 @@ class UjimonModel(val playerTrainer : Trainer, val enemyTrainer1 : Trainer, val 
 
     fun healUjimonSelected(index: Int) {
         playerTrainer.ujimonTeam[index].healHealthPoints()
-        playerTrainer.recoverTeamEnergy()
+        playerTrainer.ujimonTeam[index].recoverEnergy()
     }
 
     fun chooseEnemyUjimonAttack(gameLevel: Int): Attack? {
@@ -264,9 +275,9 @@ class UjimonModel(val playerTrainer : Trainer, val enemyTrainer1 : Trainer, val 
                 chosenAttack = computerAttack(enemyTrainer3, playerTrainer)
             }
         }
-        if(chosenAttack!=null){
-            playerTrainer.ujimonSelected!!.recieveAttack(chosenAttack!!)
-        }
+        if(chosenAttack != null)
+            playerTrainer.ujimonSelected.recieveAttack(chosenAttack)
+
         return chosenAttack
     }
 

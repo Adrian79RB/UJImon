@@ -61,7 +61,7 @@ class UjimonInstances {
         ujimonArray[7].ujimonTolerance[0] = Tolerance(Type.DARKNESS, 0.7f)
         ujimonArray[7].ujimonTolerance[1] = Tolerance(Type.GROUND , 1.7f)
         ujimonArray[7].ujimonTolerance[2] = Tolerance(Type.WATER, 1.3f)
-        ujimonArray[7].ujimonTolerance[3] = Tolerance(Type.PLANT, 02f)
+        ujimonArray[7].ujimonTolerance[3] = Tolerance(Type.PLANT, 0.2f)
         ujimonArray[7].ujimonTolerance[4] = Tolerance(Type.FIRE, 1f)
 
         ujimonArray[8] = Ujimon(1000f, "Golroc", Assets.assetsCombat[8], Assets.assetsButton[8],false, Type.GROUND)

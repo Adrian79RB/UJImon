@@ -5,6 +5,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.media.AudioAttributes
+import android.media.MediaPlayer
 import android.media.SoundPool
 import androidx.core.content.ContextCompat
 import es.uji.al385729.ujimon.Assets
@@ -38,9 +39,9 @@ class UjimonController(val width : Int,
     }
 
     private lateinit var soundPool: SoundPool
-    private var introMusicId = 0
-    private var battleMusicId = 0
-    private var healingMusicId = 0
+    private lateinit var introSongPlayer : MediaPlayer
+    private lateinit var fightSongPlayer : MediaPlayer
+    private lateinit var healingSongPlayer : MediaPlayer
     private var victoryId = 0
     private var defeatId = 0
     private var attackSoundId = 0
@@ -104,7 +105,7 @@ class UjimonController(val width : Int,
     init {
         Assets.loadDrawableAssets(contex)
         Assets.createResizedAssets(contex, cellSideInt)
-        prepareSoundPool(contex)
+        prepareSoundMedia(contex)
         graphics = Graphics(width, height)
         model = UjimonModel(playerTrainer, computerEnemy1, computerEnemy2, computerEnemy3, this)
     }
@@ -117,146 +118,21 @@ class UjimonController(val width : Int,
                 update(deltaTime)
         }
 
-        if(touchEvents != null){
-            for (event in touchEvents){
-                val correctedEventX = ((event.x - xOffset)/cellSide).toInt()
-                val correctedEventY = ((event.y - yOffset)/cellSide).toInt()
+        if(touchEvents != null) {
+            for (event in touchEvents) {
+                val correctedEventX = ((event.x - xOffset) / cellSide).toInt()
+                val correctedEventY = ((event.y - yOffset) / cellSide).toInt()
 
-                when(event.type){
+                when (event.type) {
                     TouchHandler.TouchType.TOUCH_UP -> {
-
-
-                        if(model.state == UjimonModel.UjimonState.PLAYER_CHOOSE_UJIMON){
-                            var ujimonSelected = false
-                            for(i in 0 until 5) {
-                                if (correctedEventX >= buttonStartColumnInt + i * 2 && correctedEventX < buttonStartColumnInt + Assets.UJIMON_SIZE_BUTTON + i * 2
-                                    && correctedEventY >= buttonStartRowInt && correctedEventY < buttonStartRowInt + Assets.UJIMON_SIZE_BUTTON) {
-                                    if(playerTrainer.ujimonTeam[i] != playerTrainer.ujimonSelected && playerTrainer.ujimonTeam[i].healthPoints > 0) {
-                                        playerTrainer.ujimonSelected = playerTrainer.ujimonTeam[i]
-                                        ujimonSelected = true
-                                    }
-                                    else{
-                                        graphics.drawText(4 * cellSide + xOffset, 12 * cellSide + yOffset, "That ujimon has no HP, he can't fight")
-                                    }
-                                }
-                                else if(correctedEventX >= battleButtonColInt && correctedEventX < battleButtonColInt + Assets.BUTTONS_WIDTH
-                                        && correctedEventY >= battleButtonRowInt && correctedEventY < battleButtonColumn + Assets.UJIMON_SIZE_BUTTON){
-                                    model.changeModelState(UjimonModel.UjimonState.PLAYER_TURN)
-                                }
-                            }
-                            if(ujimonSelected){
-                                model.changeModelState(UjimonModel.UjimonState.WAITING)
-                            }
-                        }
-
-                        if(model.state == UjimonModel.UjimonState.PLAYER_ATTACK){
-                            chosenAttack = null
-                            for (i in 0 until 4){
-                                if(correctedEventX >= attackButtonCol && correctedEventY == attackButtonRow+i-2){
-                                    if(playerTrainer.ujimonSelected!!.ujimonAttacks[i].currentAmount > 0){
-                                        chosenAttack = playerTrainer.ujimonSelected!!.ujimonAttacks[i]
-                                        playerTrainer.ujimonSelected!!.ujimonAttacks[i].currentAmount-=1
-                                    }
-                                }
-                            }
-
-                            if(chosenAttack != null) {
-                                xAnimation = battleEnemuUjimonCol
-                                yAnimation = battleEnemyUjimonRow
-                                when(chosenAttack!!.type){
-                                    Type.FIRE->{
-                                        animation = Assets.fireAttack
-                                        drawAnimation()
-                                    }
-                                    Type.WATER->{
-                                        animation = Assets.waterAttack
-                                        drawAnimation()
-                                    }
-                                    Type.NORMAL->{
-                                        animation = Assets.darknessAttack
-                                        drawAnimation()
-                                    }
-                                    Type.PLANT->{
-                                        animation = Assets.plantAttack
-                                        drawAnimation()
-                                    }
-                                    Type.GROUND->{
-                                        animation = Assets.groundAttack
-                                        drawAnimation()
-                                    }
-                                    Type.DARKNESS->{
-                                        animation = Assets.darknessAttack
-                                        drawAnimation()
-                                    }
-                                }
-
-                                model.playerAttackToEnemy(gameLevel, chosenAttack!!)
-                                efectivenessMessage = model.askEffectiveness(gameLevel, chosenAttack!!)
-
-                                if(model.state != UjimonModel.UjimonState.HEALTH_HEALING)
-                                    model.changeModelState(UjimonModel.UjimonState.WAITING)
-                            }
-
-                        }
-
-                        if(model.state == UjimonModel.UjimonState.PLAYER_TURN){
-                            if(correctedEventX >= changeButtonCol && correctedEventX< changeButtonCol + Assets.BUTTONS_WIDTH)
-                            if(!soundPool.equals(battleMusicId))
-                                playBattleMusic()
-
-                            if(correctedEventX >= changeButtonCol && correctedEventX< changeButtonCol + Assets.UJIMON_SIZE_BUTTON
-                                && correctedEventY >= changeButtonRow && correctedEventY < changeButtonRow + Assets.UJIMON_SIZE_BUTTON){
-                                model.changeModelState(UjimonModel.UjimonState.PLAYER_CHOOSE_UJIMON)
-                            }
-                            if(correctedEventX >= attackButtonCol && correctedEventX< attackButtonCol + Assets.BUTTONS_WIDTH
-                                    && correctedEventY >= attackButtonRow && correctedEventY < attackButtonRow + Assets.UJIMON_SIZE_BUTTON){
-                                model.changeModelState(UjimonModel.UjimonState.PLAYER_ATTACK)
-                            }
-                        }
-
-                        if(model.state == UjimonModel.UjimonState.HEALTH_HEALING) {
-                            if(!soundPool.equals(healingMusicId))
-                                playHealingMusic()
-
-
+                        if (model.state == UjimonModel.UjimonState.UJIMON_SELECTION || model.state == UjimonModel.UjimonState.UJIMON_SELECTED) {
                             for (i in 0 until 5) {
-                                if (correctedEventX >= buttonStartColumnInt + (Assets.UJIMON_SIZE_BUTTON + 2) * i && correctedEventX < buttonStartColumnInt + Assets.UJIMON_SIZE_BUTTON + (Assets.UJIMON_SIZE_BUTTON + 2) * i
-                                        && correctedEventY >= healthButtonRow && correctedEventY < healthButtonRow + Assets.UJIMON_SIZE_BUTTON) {
-                                    if (ujimonHealed) {
-                                        playerTrainer.ujimonSelected = playerTrainer.ujimonTeam[i]
-                                        ujimonHealed = false
-                                        gameLevel++
-                                        if(gameLevel > 3){
-                                            model.changeModelState(UjimonModel.UjimonState.END)
-                                            playerScore = model.countPlayerScore()
-                                        }
-                                        else
-                                            model.changeModelState(UjimonModel.UjimonState.PLAYER_TURN)
-                                    }
-                                    else {
-                                        model.healUjimonSelected(i)
-                                        ujimonHealed = true
-                                    }
-                                }
-                            }
-                        }
-
-                        if(model.state == UjimonModel.UjimonState.END) {
-                            if(correctedEventX >= battleButtonColInt && correctedEventX < battleButtonColInt + Assets.UJIMON_SIZE_BUTTON
-                                    && correctedEventY >= battleButtonRowInt && correctedEventY < battleButtonRowInt + Assets.UJIMON_SIZE_BUTTON) {
-                                val intent = Intent(contex, MainActivity::class.java)
-                                ContextCompat.startActivity(contex, intent, null)
-                            }
-                        }
-
-                        if(model.state == UjimonModel.UjimonState.UJIMON_SELECTION || model.state == UjimonModel.UjimonState.UJIMON_SELECTED){
-                            for(i in 0 until 5){
-                                if(correctedEventX >= buttonStartColumnInt + i * 2 && correctedEventX < buttonStartColumnInt + Assets.UJIMON_SIZE_BUTTON + i * 2
-                                        && correctedEventY >= buttonStartRowInt && correctedEventY < buttonStartRowInt + Assets.UJIMON_SIZE_BUTTON){
+                                if (correctedEventX >= buttonStartColumnInt + i * 2 && correctedEventX < buttonStartColumnInt + Assets.UJIMON_SIZE_BUTTON + i * 2
+                                        && correctedEventY >= buttonStartRowInt && correctedEventY < buttonStartRowInt + Assets.UJIMON_SIZE_BUTTON) {
                                     val ujimonSelected = model.selectUjimon(i, 1)
                                     model.playerSelectUjimon(ujimonSelected, playerTrainer.ujimonTeam)
                                 }
-                                if(correctedEventX >= buttonStartColumnInt + i * 2 && correctedEventX < buttonStartColumnInt + Assets.UJIMON_SIZE_BUTTON + i * 2
+                                if (correctedEventX >= buttonStartColumnInt + i * 2 && correctedEventX < buttonStartColumnInt + Assets.UJIMON_SIZE_BUTTON + i * 2
                                         && correctedEventY >= buttonStartSecondRowInt && correctedEventY < buttonStartSecondRowInt + Assets.UJIMON_SIZE_BUTTON) {
                                     val ujimonSelected = model.selectUjimon(i, 2)
                                     model.playerSelectUjimon(ujimonSelected, playerTrainer.ujimonTeam)
@@ -264,40 +140,139 @@ class UjimonController(val width : Int,
                             }
 
                             ujimonChoosen = 0
-                            for(ujimon in playerTrainer.ujimonTeam){
-                                if(ujimon.name != "")
+                            for (ujimon in playerTrainer.ujimonTeam) {
+                                if (ujimon.name != "")
                                     ujimonChoosen++
                             }
-                            if(ujimonChoosen == playerTrainer.ujimonTeam.size)
+                            if (ujimonChoosen == playerTrainer.ujimonTeam.size)
                                 model.changeModelState(UjimonModel.UjimonState.UJIMON_SELECTED)
-                            else if(model.state == UjimonModel.UjimonState.UJIMON_SELECTED)
+                            else if (model.state == UjimonModel.UjimonState.UJIMON_SELECTED)
                                 model.changeModelState(UjimonModel.UjimonState.UJIMON_SELECTION)
                         }
 
-                        if(model.state == UjimonModel.UjimonState.UJIMON_SELECTED){
-                            if(correctedEventX >= battleButtonColInt && correctedEventX < battleButtonColInt + Assets.BUTTONS_WIDTH
+                        if (model.state == UjimonModel.UjimonState.UJIMON_SELECTED) {
+                            if (correctedEventX >= battleButtonColInt && correctedEventX < battleButtonColInt + Assets.BUTTONS_WIDTH
                                     && correctedEventY >= battleButtonRowInt && correctedEventY < battleButtonRowInt + Assets.UJIMON_SIZE_BUTTON) {
                                 model.createEnemyTrainer1Team()
                                 model.createEnemyTrainer2Team()
                                 model.createEnemyTrainer3Team()
                                 model.changeModelState(UjimonModel.UjimonState.PLAYER_TURN)
-                                playerTrainer.ujimonSelected = playerTrainer.ujimonTeam[0]
-                                computerEnemy1.ujimonSelected = computerEnemy1.ujimonTeam[0]
-                                computerEnemy2.ujimonSelected = computerEnemy2.ujimonTeam[0]
-                                computerEnemy3.ujimonSelected = computerEnemy3.ujimonTeam[0]
-                                for(ujimon in playerTrainer.ujimonTeam){
-                                    ujimon.establishAttacks()
+                                model.establishTrainersUjimon()
+                            }
+                        }
+
+                        if (model.state == UjimonModel.UjimonState.PLAYER_CHOOSE_UJIMON) {
+                            var ujimonSelected = false
+                            for (i in 0 until 5) {
+                                if (correctedEventX >= buttonStartColumnInt + i * 2 && correctedEventX < buttonStartColumnInt + Assets.UJIMON_SIZE_BUTTON + i * 2
+                                        && correctedEventY >= buttonStartRowInt && correctedEventY < buttonStartRowInt + Assets.UJIMON_SIZE_BUTTON) {
+                                    if (playerTrainer.ujimonTeam[i] != playerTrainer.ujimonSelected && playerTrainer.ujimonTeam[i].healthPoints > 0) {
+                                        playerTrainer.ujimonSelected = playerTrainer.ujimonTeam[i]
+                                        ujimonSelected = true
+                                    } else {
+                                        graphics.drawText(4 * cellSide + xOffset, 12 * cellSide + yOffset, "That ujimon has no HP, he can't fight")
+                                    }
+                                } else if (correctedEventX >= battleButtonColInt && correctedEventX < battleButtonColInt + Assets.BUTTONS_WIDTH
+                                        && correctedEventY >= battleButtonRowInt && correctedEventY < battleButtonColumn + Assets.UJIMON_SIZE_BUTTON) {
+                                    model.changeModelState(UjimonModel.UjimonState.PLAYER_TURN)
                                 }
-                                for(ujimon in computerEnemy1.ujimonTeam){
-                                    ujimon.establishAttacks()
+                            }
+                            if (ujimonSelected) {
+                                model.changeModelState(UjimonModel.UjimonState.WAITING)
+                            }
+                        }
+
+                        if (model.state == UjimonModel.UjimonState.PLAYER_ATTACK) {
+                            chosenAttack = null
+                            var attackIsChoosen = false
+                            for (i in 0 until 4) {
+                                if (correctedEventX >= attackButtonCol && correctedEventY == attackButtonRow + i - 2) {
+                                    if (playerTrainer.ujimonSelected.ujimonAttacks[i].currentAmount > 0) {
+                                        chosenAttack = model.chooseUjimonAttack(i)
+                                        attackIsChoosen = true
+                                        if (chosenAttack != null) {
+                                            if (chosenAttack!!.type == Type.NORMAL)
+                                                playNormalAttackSound()
+                                            else
+                                                playPowerAttackSound()
+                                        }
+                                        break
+                                    }
                                 }
-                                for(ujimon in computerEnemy2.ujimonTeam){
-                                    ujimon.establishAttacks()
-                                }
-                                for(ujimon in computerEnemy3.ujimonTeam){
-                                    ujimon.establishAttacks()
+                            }
+
+                            if (chosenAttack != null) {
+                                xAnimation = battleEnemuUjimonCol
+                                yAnimation = battleEnemyUjimonRow
+                                when (chosenAttack!!.type) {
+                                    Type.FIRE -> {
+                                        animation = Assets.fireAttack
+                                        drawAnimation()
+                                    }
+                                    Type.WATER -> {
+                                        animation = Assets.waterAttack
+                                        drawAnimation()
+                                    }
+                                    Type.NORMAL -> {
+                                        animation = Assets.darknessAttack
+                                        drawAnimation()
+                                    }
+                                    Type.PLANT -> {
+                                        animation = Assets.plantAttack
+                                        drawAnimation()
+                                    }
+                                    Type.GROUND -> {
+                                        animation = Assets.groundAttack
+                                        drawAnimation()
+                                    }
+                                    Type.DARKNESS -> {
+                                        animation = Assets.darknessAttack
+                                        drawAnimation()
+                                    }
                                 }
 
+                                model.playerAttackToEnemy(gameLevel, chosenAttack!!)
+                                efectivenessMessage = model.askEffectiveness(gameLevel, chosenAttack!!)
+                            }
+
+                            if (attackIsChoosen && model.state != UjimonModel.UjimonState.HEALTH_HEALING && model.state != UjimonModel.UjimonState.END)
+                                model.changeModelState(UjimonModel.UjimonState.WAITING)
+                        }
+
+
+                        if (model.state == UjimonModel.UjimonState.PLAYER_TURN) {
+                            if (correctedEventX >= changeButtonCol && correctedEventX < changeButtonCol + Assets.BUTTONS_WIDTH
+                                    && correctedEventY >= changeButtonRow && correctedEventY < changeButtonRow + Assets.UJIMON_SIZE_BUTTON) {
+                                model.changeModelState(UjimonModel.UjimonState.PLAYER_CHOOSE_UJIMON)
+                            }
+                            if (correctedEventX >= attackButtonCol && correctedEventX < attackButtonCol + Assets.BUTTONS_WIDTH
+                                    && correctedEventY >= attackButtonRow && correctedEventY < attackButtonRow + Assets.UJIMON_SIZE_BUTTON) {
+                                model.changeModelState(UjimonModel.UjimonState.PLAYER_ATTACK)
+                            }
+                        }
+
+                        if (model.state == UjimonModel.UjimonState.HEALTH_HEALING) {
+                            for (i in 0 until 5) {
+                                if (correctedEventX >= buttonStartColumnInt + (Assets.UJIMON_SIZE_BUTTON + 2) * i && correctedEventX < buttonStartColumnInt + Assets.UJIMON_SIZE_BUTTON + (Assets.UJIMON_SIZE_BUTTON + 2) * i
+                                        && correctedEventY >= healthButtonRow && correctedEventY < healthButtonRow + Assets.UJIMON_SIZE_BUTTON) {
+                                    if (ujimonHealed) {
+                                        playerTrainer.ujimonSelected = playerTrainer.ujimonTeam[i]
+                                        ujimonHealed = false
+                                        gameLevel++
+                                        model.changeModelState(UjimonModel.UjimonState.PLAYER_TURN)
+                                    } else {
+                                        model.healUjimonSelected(i)
+                                        ujimonHealed = true
+                                    }
+                                }
+                            }
+                        }
+
+                        if (model.state == UjimonModel.UjimonState.END) {
+                            if (correctedEventX >= battleButtonColInt && correctedEventX < battleButtonColInt + Assets.UJIMON_SIZE_BUTTON
+                                    && correctedEventY >= battleButtonRowInt && correctedEventY < battleButtonRowInt + Assets.UJIMON_SIZE_BUTTON) {
+                                val intent = Intent(contex, MainActivity::class.java)
+                                ContextCompat.startActivity(contex, intent, null)
                             }
                         }
                     }
@@ -314,34 +289,38 @@ class UjimonController(val width : Int,
                 efectivenessMessage = model.askEnemyEffectiveness(chosenAttack!!)
                 xAnimation = battlePlayerUjimonCol
                 yAnimation = battlePlayerUjimonRow
-                when(chosenAttack!!.type){
-                    Type.FIRE->{
+                when (chosenAttack!!.type) {
+                    Type.FIRE -> {
                         animation = Assets.fireAttack
                         drawAnimation()
                     }
-                    Type.WATER->{
+                    Type.WATER -> {
                         animation = Assets.waterAttack
                         drawAnimation()
                     }
-                    Type.NORMAL->{
+                    Type.NORMAL -> {
                         animation = Assets.darknessAttack
                         drawAnimation()
                     }
-                    Type.PLANT->{
+                    Type.PLANT -> {
                         animation = Assets.plantAttack
                         drawAnimation()
                     }
-                    Type.GROUND->{
+                    Type.GROUND -> {
                         animation = Assets.groundAttack
                         drawAnimation()
                     }
-                    Type.DARKNESS->{
+                    Type.DARKNESS -> {
                         animation = Assets.darknessAttack
                         drawAnimation()
                     }
                 }
-            }
 
+                if (chosenAttack!!.type == Type.NORMAL)
+                    playNormalAttackSound()
+                else
+                    playPowerAttackSound()
+            }
             model.changeModelState(UjimonModel.UjimonState.WAITING)
         }
 
@@ -354,7 +333,7 @@ class UjimonController(val width : Int,
                     model.changeModelState(UjimonModel.UjimonState.COMPUTER_TURN)
                 }
                 else if(model.lastState == UjimonModel.UjimonState.COMPUTER_TURN) {
-                    if(playerTrainer.ujimonSelected!!.dead){
+                    if(playerTrainer.ujimonSelected.dead){
                         if(model.checkPlayerUjimonTeamDead()){
                             model.changeModelState(UjimonModel.UjimonState.END)
                             playerScore = model.countPlayerScore()
@@ -369,7 +348,6 @@ class UjimonController(val width : Int,
             }
         }
     }
-
 
     override fun onDrawingRequested(): Bitmap {
         graphics.clear(BACKGROUND_COLOR)
@@ -421,7 +399,7 @@ class UjimonController(val width : Int,
         }
 
         if(model.state == UjimonModel.UjimonState.PLAYER_ATTACK){
-            drawAttacksButtons(playerTrainer.ujimonSelected!!)
+            drawAttacksButtons(playerTrainer.ujimonSelected)
         }
 
         if(model.state == UjimonModel.UjimonState.WAITING){
@@ -437,11 +415,16 @@ class UjimonController(val width : Int,
                     graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset,  chosenUjimon!!.name + " have failed the attack.")
             }
             else if(model.lastState == UjimonModel.UjimonState.PLAYER_ATTACK) {
+                if(chosenAttack != null) {
                 graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset, "You have used : " + chosenAttack!!.Nombre)
                 graphics.drawText(promptColumn * cellSide + xOffset, (promptRow+1) * cellSide + yOffset,  efectivenessMessage)
+                }
+                else {
+                    graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset, "You have failed the attack.")
+                }
             }
             else if(model.lastState == UjimonModel.UjimonState.PLAYER_CHOOSE_UJIMON)
-                graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset,  "You have changed your Ujimon to " + playerTrainer.ujimonSelected!!.name)
+                graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset,  "You have changed your Ujimon to " + playerTrainer.ujimonSelected.name)
         }
 
         if(model.state == UjimonModel.UjimonState.HEALTH_HEALING) {
@@ -503,7 +486,7 @@ class UjimonController(val width : Int,
             i++
         }
 
-        if(!playerTrainer.ujimonSelected!!.dead)
+        if(!playerTrainer.ujimonSelected.dead)
             graphics.drawBitmap(Assets.backButton, battleButtonColumn, battleButtonRow)
     }
 
@@ -528,9 +511,11 @@ class UjimonController(val width : Int,
     private fun drawEndingScreen() {
         if(playerScore <= 0){
             graphics.drawText(7 * cellSide + xOffset, 6 * cellSide + yOffset, "HAS PERDIDO EL COMBATE")
+            playDefeated()
         }
         else{
             graphics.drawText(7 * cellSide + xOffset, 6 * cellSide + yOffset, "HAS GANADO EL COMBATE")
+            playVictory()
         }
 
         var i = 0
@@ -560,52 +545,63 @@ class UjimonController(val width : Int,
         var i = 0
         graphics.drawBitmap(Assets.attackBox, attackBoxCol * cellSide + xOffset, attackBoxRow * cellSide + yOffset)
         for(attack in ujimon.ujimonAttacks){
-            when(attack.type){
-                Type.FIRE->{
-                    graphics.setTextColor(FIRE_TEXT_COLOR)
-                }
-                Type.WATER->{
-                    graphics.setTextColor(WATER_TEXT_COLOR)
-                }
-                Type.DARKNESS->{
-                    graphics.setTextColor(DARK_TEXT_COLOR)
-                }
-                Type.GROUND->{
-                    graphics.setTextColor(GROUND_TEXT_COLOR)
-                }
-                Type.PLANT->{
-                    graphics.setTextColor(PLANT_TEXT_COLOR)
-                }
-                Type.NORMAL->{
-                    graphics.setTextColor(NORMAL_TEXT_COLOR)
-                }
-            }
+            chooseTextColor(attack.type)
             graphics.drawText((attackButtonCol+1) * cellSide + xOffset, (attackButtonRow+i-1) * cellSide + yOffset , attack.Nombre +  " " + attack.currentAmount + "/" + attack.totalAmount)
             i++
         }
         graphics.setTextColor(TEXT_COLOR)
     }
 
-    private fun drawUjimonsInBattle() {
-        graphics.drawBitmap(playerTrainer.ujimonSelected!!.imageAsset, battlePlayerUjimonCol * cellSide + xOffset, battlePlayerUjimonRow * cellSide + yOffset)
-        graphics.drawText(battlePlayerUjimonCol * cellSide + xOffset + Assets.UJIMON_SIZE_COMBAT + 1,(battlePlayerUjimonRow+ Assets.UJIMON_SIZE_COMBAT + 1) * cellSide + yOffset,playerTrainer.ujimonSelected!!.name + " HP: " + playerTrainer.ujimonSelected!!.healthPoints.toString() )
-        when(gameLevel){
-            1->{
-                graphics.drawBitmap(computerEnemy1.ujimonSelected!!.imageAsset, battleEnemuUjimonCol * cellSide + xOffset, battleEnemyUjimonRow * cellSide + yOffset)
-                graphics.drawText(battleEnemuUjimonCol * cellSide + xOffset + Assets.UJIMON_SIZE_COMBAT + 1,battleEnemyUjimonRow * cellSide + yOffset,computerEnemy1.ujimonSelected!!.name + " HP: " + computerEnemy1.ujimonSelected!!.healthPoints.toString())
-
+    private fun chooseTextColor(type : Type) {
+        when(type){
+            Type.FIRE->{
+                graphics.setTextColor(FIRE_TEXT_COLOR)
             }
-            2->{
-                graphics.drawBitmap(computerEnemy2.ujimonSelected!!.imageAsset, battleEnemuUjimonCol * cellSide + xOffset, battleEnemyUjimonRow * cellSide + yOffset)
-                graphics.drawText(battleEnemuUjimonCol * cellSide + xOffset + Assets.UJIMON_SIZE_COMBAT + 1,battleEnemyUjimonRow * cellSide + yOffset,computerEnemy2.ujimonSelected!!.name + " HP: " + computerEnemy2.ujimonSelected!!.healthPoints.toString())
-
+            Type.WATER->{
+                graphics.setTextColor(WATER_TEXT_COLOR)
             }
-            3->{
-                graphics.drawBitmap(computerEnemy3.ujimonSelected!!.imageAsset, battleEnemuUjimonCol * cellSide + xOffset, battleEnemyUjimonRow * cellSide + yOffset)
-                graphics.drawText(battleEnemuUjimonCol * cellSide + xOffset + Assets.UJIMON_SIZE_COMBAT + 1,battleEnemyUjimonRow * cellSide + yOffset,computerEnemy3.ujimonSelected!!.name + " HP: " + computerEnemy3.ujimonSelected!!.healthPoints.toString())
-
+            Type.DARKNESS->{
+                graphics.setTextColor(DARK_TEXT_COLOR)
+            }
+            Type.GROUND->{
+                graphics.setTextColor(GROUND_TEXT_COLOR)
+            }
+            Type.PLANT->{
+                graphics.setTextColor(PLANT_TEXT_COLOR)
+            }
+            Type.NORMAL->{
+                graphics.setTextColor(NORMAL_TEXT_COLOR)
             }
         }
+    }
+
+    private fun drawUjimonsInBattle() {
+        graphics.drawBitmap(playerTrainer.ujimonSelected.imageAsset, battlePlayerUjimonCol * cellSide + xOffset, battlePlayerUjimonRow * cellSide + yOffset)
+        graphics.drawText(battlePlayerUjimonCol * cellSide + xOffset + Assets.UJIMON_SIZE_COMBAT + 1,(battlePlayerUjimonRow+ Assets.UJIMON_SIZE_COMBAT + 1) * cellSide + yOffset,"${playerTrainer.ujimonSelected.name} HP: ${playerTrainer.ujimonSelected.healthPoints}")
+        chooseTextColor(playerTrainer.ujimonSelected.type)
+        graphics.drawText(battlePlayerUjimonCol * cellSide + xOffset + Assets.UJIMON_SIZE_COMBAT,(battlePlayerUjimonRow + Assets.UJIMON_SIZE_COMBAT) * cellSide + yOffset,"Type: ${playerTrainer.ujimonSelected.type}")
+        graphics.setTextColor(TEXT_COLOR)
+        when(gameLevel){
+            1->{
+                graphics.drawBitmap(computerEnemy1.ujimonSelected.imageAsset, battleEnemuUjimonCol * cellSide + xOffset, battleEnemyUjimonRow * cellSide + yOffset)
+                graphics.drawText(battleEnemuUjimonCol * cellSide + xOffset + Assets.UJIMON_SIZE_COMBAT + 1,battleEnemyUjimonRow * cellSide + yOffset,"${computerEnemy1.ujimonSelected.name} HP: ${computerEnemy1.ujimonSelected.healthPoints}")
+                chooseTextColor(computerEnemy1.ujimonSelected.type)
+                graphics.drawText(battleEnemuUjimonCol * cellSide + xOffset + Assets.UJIMON_SIZE_COMBAT,(battleEnemyUjimonRow - 1) * cellSide + yOffset,"Type: ${computerEnemy1.ujimonSelected.type}")
+            }
+            2->{
+                graphics.drawBitmap(computerEnemy2.ujimonSelected.imageAsset, battleEnemuUjimonCol * cellSide + xOffset, battleEnemyUjimonRow * cellSide + yOffset)
+                graphics.drawText(battleEnemuUjimonCol * cellSide + xOffset + Assets.UJIMON_SIZE_COMBAT + 1,battleEnemyUjimonRow * cellSide + yOffset,"${computerEnemy2.ujimonSelected.name} HP: ${computerEnemy2.ujimonSelected.healthPoints}")
+                chooseTextColor(computerEnemy2.ujimonSelected.type)
+                graphics.drawText(battleEnemuUjimonCol * cellSide + xOffset + Assets.UJIMON_SIZE_COMBAT,(battleEnemyUjimonRow - 1) * cellSide + yOffset,"Type: ${computerEnemy2.ujimonSelected.type}")
+            }
+            3->{
+                graphics.drawBitmap(computerEnemy3.ujimonSelected.imageAsset, battleEnemuUjimonCol * cellSide + xOffset, battleEnemyUjimonRow * cellSide + yOffset)
+                graphics.drawText(battleEnemuUjimonCol * cellSide + xOffset + Assets.UJIMON_SIZE_COMBAT + 1,battleEnemyUjimonRow * cellSide + yOffset,"${computerEnemy3.ujimonSelected.name} HP: ${computerEnemy3.ujimonSelected.healthPoints}")
+                chooseTextColor(computerEnemy3.ujimonSelected.type)
+                graphics.drawText(battleEnemuUjimonCol * cellSide + xOffset + Assets.UJIMON_SIZE_COMBAT,(battleEnemyUjimonRow - 1) * cellSide + yOffset,"Type: ${computerEnemy3.ujimonSelected.type}")
+            }
+        }
+        graphics.setTextColor(TEXT_COLOR)
     }
 
     private fun drawAnimation(){
@@ -636,7 +632,7 @@ class UjimonController(val width : Int,
         }
     }
 
-    private fun prepareSoundPool(contex: Context) {
+    private fun prepareSoundMedia(contex: Context) {
         val attributes = AudioAttributes.Builder()
                 .setUsage(AudioAttributes.USAGE_GAME)
                 .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build()
@@ -644,9 +640,16 @@ class UjimonController(val width : Int,
                 .setMaxStreams(3)
                 .setAudioAttributes(attributes).build()
 
-        introMusicId = soundPool.load(contex, R.raw.intro_song, 0)
-        battleMusicId = soundPool.load(contex, R.raw.fight_song, 0)
-        healingMusicId = soundPool.load(contex, R.raw.healing_song, 0)
+        introSongPlayer = MediaPlayer.create(contex, R.raw.intro_song).apply {
+            setVolume(0.9f, 0.9f)
+        }
+        fightSongPlayer = MediaPlayer.create(contex, R.raw.fight_song).apply {
+            setVolume(0.9f, 0.9f)
+        }
+        healingSongPlayer = MediaPlayer.create(contex, R.raw.healing_song).apply {
+            setVolume(0.9f, 0.9f)
+        }
+
         victoryId = soundPool.load(contex, R.raw.victory, 0)
         defeatId = soundPool.load(contex, R.raw.game_over, 0)
         attackSoundId = soundPool.load(contex, R.raw.attack_kick, 0)
@@ -654,15 +657,25 @@ class UjimonController(val width : Int,
     }
 
     override fun playIntroMusic() {
-        soundPool.play(introMusicId, 1f, 1f, 0, 1, 1f)
+        introSongPlayer.start()
     }
 
     override fun playBattleMusic() {
-        soundPool.play(battleMusicId, 1f, 1f, 0, 1, 1f)
+        if (introSongPlayer.isPlaying)
+            introSongPlayer.stop()
+        if (healingSongPlayer.isPlaying)
+            healingSongPlayer.stop()
+
+        fightSongPlayer.start()
     }
 
     override fun playHealingMusic() {
-        soundPool.play(healingMusicId, 1f, 1f, 0, 1, 1f)
+        if (fightSongPlayer.isPlaying)
+            fightSongPlayer.stop()
+        if (introSongPlayer.isPlaying)
+            introSongPlayer.stop()
+
+        healingSongPlayer.start()
     }
 
     override fun playVictory() {

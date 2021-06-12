@@ -107,6 +107,25 @@ class UjimonModel(val playerTrainer : Trainer, val enemyTrainer1 : Trainer, val 
 
         return false
     }
+    fun askEffectiveness(gameLevel : Int, attack: Attack): String {
+        var message : String = ""
+        when(gameLevel){
+            1->{
+                message = enemyTrainer1.ujimonSelected!!.attackEffectiveness(attack)
+            }
+            2->{
+                message = enemyTrainer2.ujimonSelected!!.attackEffectiveness(attack)
+            }
+            3->{
+                message = enemyTrainer3.ujimonSelected!!.attackEffectiveness(attack)
+            }
+        }
+        return  message
+    }
+
+    fun askEnemyEffectiveness(attack: Attack): String {
+        return playerTrainer.ujimonSelected!!.attackEffectiveness(attack)
+    }
 
     fun playerSelectUjimon(ujimonSelected: Ujimon, ujimonTeam: Array<Ujimon>) {
         for(i in ujimonTeam.indices){
@@ -245,8 +264,9 @@ class UjimonModel(val playerTrainer : Trainer, val enemyTrainer1 : Trainer, val 
                 chosenAttack = computerAttack(enemyTrainer3, playerTrainer)
             }
         }
-        playerTrainer.ujimonSelected!!.recieveAttack(chosenAttack!!)
-
+        if(chosenAttack!=null){
+            playerTrainer.ujimonSelected!!.recieveAttack(chosenAttack!!)
+        }
         return chosenAttack
     }
 

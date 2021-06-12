@@ -11,6 +11,7 @@ object Assets {
 
     const val UJIMON_SIZE_COMBAT = 5
     const val UJIMON_SIZE_BUTTON = 2
+    const val BUTTONS_WIDTH = 4
     const val BATTLEFIELD_WIDTH = 24
     const val BATTLEFIELD_HEIGHT = 14
     const val PROMPT_WIDTH = 12
@@ -27,6 +28,8 @@ object Assets {
     var promptBox : Bitmap? = null
     var attackBox : Bitmap? = null
     var replayButton : Bitmap? = null
+    var ujiball : Bitmap? = null
+    var emptyujiball : Bitmap? = null
 
     private var plant : SpriteSheet? = null
     var plantAttack : AnimatedBitmap? = null
@@ -128,16 +131,16 @@ object Assets {
 
 
         battleButton?.recycle()
-        battleButton = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(resources, R.drawable.battle_button), cellSize * UJIMON_SIZE_BUTTON, cellSize * UJIMON_SIZE_BUTTON, true)
+        battleButton = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(resources, R.drawable.battle_button), cellSize * BUTTONS_WIDTH, cellSize * UJIMON_SIZE_BUTTON, true)
 
         attackButton?.recycle()
-        attackButton = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(resources, R.drawable.attack_button), cellSize * UJIMON_SIZE_BUTTON, cellSize * UJIMON_SIZE_BUTTON, true)
+        attackButton = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(resources, R.drawable.attack_button), cellSize * BUTTONS_WIDTH, cellSize * UJIMON_SIZE_BUTTON, true)
 
         changeButton?.recycle()
-        changeButton = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(resources, R.drawable.change_button), cellSize * UJIMON_SIZE_BUTTON, cellSize * UJIMON_SIZE_BUTTON, true)
+        changeButton = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(resources, R.drawable.change_button), cellSize * BUTTONS_WIDTH, cellSize * UJIMON_SIZE_BUTTON, true)
 
         backButton?.recycle()
-        backButton = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(resources, R.drawable.back_button), cellSize * UJIMON_SIZE_BUTTON, cellSize * UJIMON_SIZE_BUTTON, true)
+        backButton = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(resources, R.drawable.back_button), cellSize * BUTTONS_WIDTH, cellSize * UJIMON_SIZE_BUTTON, true)
 
         replayButton?.recycle()
         replayButton = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(resources, R.drawable.replay_button), cellSize * UJIMON_SIZE_BUTTON, cellSize* UJIMON_SIZE_BUTTON, true)
@@ -154,6 +157,11 @@ object Assets {
         attackBox?.recycle()
        attackBox = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(resources,R.drawable.attack_box), cellSize * PROMPT_WIDTH, cellSize * PROMPT_HEIGHT, true)
 
+        ujiball?.recycle()
+        ujiball = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(resources, R.drawable.ujiball), cellSize, cellSize, true)
+
+        emptyujiball?.recycle()
+        emptyujiball = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(resources, R.drawable.empty_ujiball), cellSize, cellSize, true)
 
         val plantAttackFrames = ArrayList<Bitmap>()
         plantAttack?.recycle()

@@ -1,6 +1,7 @@
 package es.uji.al385729.ujimon.Model
 
 import android.graphics.Bitmap
+import es.uji.al385729.ujimon.Controller.UjimonController
 import kotlin.random.Random
 
 class Ujimon(var healthPoints: Float, val name: String, val imageAsset: Bitmap?, val buttonAsset : Bitmap?, var dead: Boolean, val type : Type) {
@@ -87,6 +88,26 @@ class Ujimon(var healthPoints: Float, val name: String, val imageAsset: Bitmap?,
             dead = true
             healthPoints = 0f
         }
+    }
+
+    fun attackEffectiveness(attack : Attack): String {
+        var message  = ""
+        if(attack.type == Type.NORMAL)
+            message = ""
+        else {
+            for (tolerance in ujimonTolerance) {
+                if (tolerance.type == attack.type) {
+                    if (tolerance.amount > 1f) {
+                        message = "It was very effective"
+                    } else if (tolerance.amount < 1f) {
+                       message = "It wasn't very effective"
+                    } else {
+                        message = ""
+                    }
+                }
+            }
+        }
+        return message
     }
 
     fun healHealthPoints() {

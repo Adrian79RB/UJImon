@@ -372,6 +372,7 @@ class UjimonController(val width : Int,
 
         if(model.state == UjimonModel.UjimonState.UJIMON_SELECTION || model.state == UjimonModel.UjimonState.UJIMON_SELECTED){
             graphics.drawText(4 * cellSide + xOffset, cellSide + yOffset, "Choose your Ujimon Team")
+            graphics.drawText((playerTeamStartColumnInt + 3) * cellSide + xOffset, buttonStartRow + 1, "Your team")
             drawUjimonButtons()
 
             if(model.state == UjimonModel.UjimonState.UJIMON_SELECTED)
@@ -466,7 +467,7 @@ class UjimonController(val width : Int,
             if(i < 5) {
                 if(model.ujimonAlreadySelected(ujimon, playerTrainer.ujimonTeam)) {
                     graphics.drawRect((buttonStartColumnInt + Assets.UJIMON_SIZE_BUTTON * i) * cellSide + xOffset, buttonStartRow, Assets.UJIMON_SIZE_BUTTON * cellSide, Assets.UJIMON_SIZE_BUTTON * cellSide, BUTTON_SELECTED_COLOR)
-                    graphics.drawBitmap(ujimon.buttonAsset ,(playerTeamStartColumnInt + Assets.UJIMON_SIZE_BUTTON * k)* cellSide + xOffset, buttonStartRow)
+                    graphics.drawBitmap(ujimon.buttonAsset ,(playerTeamStartColumnInt + Assets.UJIMON_SIZE_BUTTON * k)* cellSide + xOffset, (buttonStartRowInt + 2) * cellSide + yOffset)
                     k++
                 }
                 else
@@ -477,7 +478,7 @@ class UjimonController(val width : Int,
             else {
                 if (model.ujimonAlreadySelected(ujimon, playerTrainer.ujimonTeam)) {
                     graphics.drawRect((buttonStartColumnInt + Assets.UJIMON_SIZE_BUTTON * (i - 5)) * cellSide + xOffset, buttonStartSecondRow, Assets.UJIMON_SIZE_BUTTON * cellSide, Assets.UJIMON_SIZE_BUTTON * cellSide, BUTTON_SELECTED_COLOR)
-                    graphics.drawBitmap(ujimon.buttonAsset, (playerTeamStartColumnInt + Assets.UJIMON_SIZE_BUTTON * k) * cellSide + xOffset, buttonStartRow)
+                    graphics.drawBitmap(ujimon.buttonAsset, (playerTeamStartColumnInt + Assets.UJIMON_SIZE_BUTTON * k) * cellSide + xOffset, (buttonStartRowInt + 2) * cellSide + yOffset)
                     k++
                 } else
                     graphics.drawRect((buttonStartColumnInt + Assets.UJIMON_SIZE_BUTTON * (i - 5)) * cellSide + xOffset, buttonStartSecondRow, Assets.UJIMON_SIZE_BUTTON * cellSide, Assets.UJIMON_SIZE_BUTTON * cellSide, SELECTION_MENU_COLOR)
@@ -698,12 +699,12 @@ class UjimonController(val width : Int,
 
     override fun playVictory() {
         musicPlayer!!.release()
-        soundPool.play(victoryId, 1f, 1f, 1, 3, 1f)
+        soundPool.play(victoryId, 1f, 1f, 1, 1, 1f)
     }
 
     override fun playDefeated() {
         musicPlayer!!.release()
-        soundPool.play(defeatId, 1f, 1f, 1, 3, 1f)
+        soundPool.play(defeatId, 1f, 1f, 1, 1, 1f)
     }
 
     override fun playNormalAttackSound() {

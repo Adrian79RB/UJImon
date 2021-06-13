@@ -60,7 +60,7 @@ class UjimonController(val width : Int,
     private val buttonStartSecondRowInt = 7
     private val healthButtonRow = 6
     private val battleButtonRowInt = 11
-    private val battleButtonColInt = 17
+    private val battleButtonColInt = 18
     private val battlePlayerUjimonRow = 7
     private val battlePlayerUjimonCol = 3
     private val battleEnemyUjimonRow =2
@@ -177,7 +177,7 @@ class UjimonController(val width : Int,
                                         graphics.drawText(4 * cellSide + xOffset, 12 * cellSide + yOffset, "That ujimon has no HP, he can't fight")
                                     }
                                 } else if (correctedEventX >= battleButtonColInt && correctedEventX < battleButtonColInt + Assets.BUTTONS_WIDTH
-                                        && correctedEventY >= battleButtonRowInt && correctedEventY < battleButtonColumn + Assets.UJIMON_SIZE_BUTTON) {
+                                        && correctedEventY >= battleButtonRowInt && correctedEventY < battleButtonRowInt + Assets.UJIMON_SIZE_BUTTON) {
                                     model.changeModelState(UjimonModel.UjimonState.PLAYER_TURN)
                                 }
                             }

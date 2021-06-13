@@ -241,9 +241,7 @@ class UjimonModel(val playerTrainer : Trainer, val enemyTrainer1 : Trainer, val 
             3 -> {
                 enemyTrainer3.ujimonSelected.recieveAttack(chosenAttack)
                 if (enemyTrainer3.ujimonSelected.dead) {
-                    if (checkEnemyUjimonTeamDead(enemyTrainer3))
-                        changeModelState(UjimonState.END)
-                    else {
+                    if (!checkEnemyUjimonTeamDead(enemyTrainer3)){
                         for (ujimon in enemyTrainer3.ujimonTeam) {
                             if (!ujimon.dead && ujimon.type != Type.NORMAL) {
                                 enemyTrainer3.ujimonSelected = ujimon

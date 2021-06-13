@@ -8,6 +8,7 @@ import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.media.SoundPool
 import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.startActivity
 import es.uji.al385729.ujimon.Assets
 import es.uji.al385729.ujimon.MainActivity
 import es.uji.al385729.ujimon.Model.*
@@ -39,13 +40,11 @@ class UjimonController(val width : Int,
     }
 
     private lateinit var soundPool: SoundPool
-    private lateinit var introSongPlayer : MediaPlayer
-    private lateinit var fightSongPlayer : MediaPlayer
-    private lateinit var healingSongPlayer : MediaPlayer
     private var victoryId = 0
     private var defeatId = 0
     private var attackSoundId = 0
     private var powerSoundId = 0
+    var musicPlayer : MediaPlayer? = null
 
     private val graphics : Graphics
     private val model : UjimonModel
@@ -83,6 +82,7 @@ class UjimonController(val width : Int,
     private val attackBoxCol = 11
     private val attackBoxRow = 8
     private var ujimonHealed = false
+    private var justClickedBattle = false
     private var playerScore = 0f
     private var startingPlayerUjiballRow = 8
     private var startingEnemyUjiballRow = 1
@@ -131,6 +131,7 @@ class UjimonController(val width : Int,
                                         && correctedEventY >= buttonStartRowInt && correctedEventY < buttonStartRowInt + Assets.UJIMON_SIZE_BUTTON) {
                                     val ujimonSelected = model.selectUjimon(i, 1)
                                     model.playerSelectUjimon(ujimonSelected, playerTrainer.ujimonTeam)
+                                    playIntroMusic()
                                 }
                                 if (correctedEventX >= buttonStartColumnInt + i * 2 && correctedEventX < buttonStartColumnInt + Assets.UJIMON_SIZE_BUTTON + i * 2
                                         && correctedEventY >= buttonStartSecondRowInt && correctedEventY < buttonStartSecondRowInt + Assets.UJIMON_SIZE_BUTTON) {
@@ -158,6 +159,9 @@ class UjimonController(val width : Int,
                                 model.createEnemyTrainer3Team()
                                 model.changeModelState(UjimonModel.UjimonState.PLAYER_TURN)
                                 model.establishTrainersUjimon()
+                                justClickedBattle = true
+
+                                playBattleMusic()
                             }
                         }
 
@@ -233,15 +237,23 @@ class UjimonController(val width : Int,
 
                                 model.playerAttackToEnemy(gameLevel, chosenAttack!!)
                                 efectivenessMessage = model.askEffectiveness(gameLevel, chosenAttack!!)
+
+                                if(gameLevel >= 3 && model.checkEnemyUjimonTeamDead(computerEnemy3)){
+                                    playerScore = model.countPlayerScore()
+                                    model.changeModelState(UjimonModel.UjimonState.END)
+                                }
                             }
 
                             if (attackIsChoosen && model.state != UjimonModel.UjimonState.HEALTH_HEALING && model.state != UjimonModel.UjimonState.END)
                                 model.changeModelState(UjimonModel.UjimonState.WAITING)
+                            else if(model.state == UjimonModel.UjimonState.HEALTH_HEALING)
+                                playHealingMusic()
+
                         }
 
 
                         if (model.state == UjimonModel.UjimonState.PLAYER_TURN) {
-                            if (correctedEventX >= changeButtonCol && correctedEventX < changeButtonCol + Assets.BUTTONS_WIDTH
+                            if (!justClickedBattle && correctedEventX >= changeButtonCol && correctedEventX < changeButtonCol + Assets.BUTTONS_WIDTH
                                     && correctedEventY >= changeButtonRow && correctedEventY < changeButtonRow + Assets.UJIMON_SIZE_BUTTON) {
                                 model.changeModelState(UjimonModel.UjimonState.PLAYER_CHOOSE_UJIMON)
                             }
@@ -249,6 +261,9 @@ class UjimonController(val width : Int,
                                     && correctedEventY >= attackButtonRow && correctedEventY < attackButtonRow + Assets.UJIMON_SIZE_BUTTON) {
                                 model.changeModelState(UjimonModel.UjimonState.PLAYER_ATTACK)
                             }
+
+                            if(justClickedBattle)
+                                justClickedBattle = false
                         }
 
                         if (model.state == UjimonModel.UjimonState.HEALTH_HEALING) {
@@ -260,6 +275,7 @@ class UjimonController(val width : Int,
                                         ujimonHealed = false
                                         gameLevel++
                                         model.changeModelState(UjimonModel.UjimonState.PLAYER_TURN)
+                                        playBattleMusic()
                                     } else {
                                         model.healUjimonSelected(i)
                                         ujimonHealed = true
@@ -271,8 +287,8 @@ class UjimonController(val width : Int,
                         if (model.state == UjimonModel.UjimonState.END) {
                             if (correctedEventX >= battleButtonColInt && correctedEventX < battleButtonColInt + Assets.UJIMON_SIZE_BUTTON
                                     && correctedEventY >= battleButtonRowInt && correctedEventY < battleButtonRowInt + Assets.UJIMON_SIZE_BUTTON) {
-                                val intent = Intent(contex, MainActivity::class.java)
-                                ContextCompat.startActivity(contex, intent, null)
+                                val intent = Intent(contex, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                startActivity(contex, intent, null)
                             }
                         }
                     }
@@ -640,16 +656,6 @@ class UjimonController(val width : Int,
                 .setMaxStreams(3)
                 .setAudioAttributes(attributes).build()
 
-        introSongPlayer = MediaPlayer.create(contex, R.raw.intro_song).apply {
-            setVolume(0.9f, 0.9f)
-        }
-        fightSongPlayer = MediaPlayer.create(contex, R.raw.fight_song).apply {
-            setVolume(0.9f, 0.9f)
-        }
-        healingSongPlayer = MediaPlayer.create(contex, R.raw.healing_song).apply {
-            setVolume(0.9f, 0.9f)
-        }
-
         victoryId = soundPool.load(contex, R.raw.victory, 0)
         defeatId = soundPool.load(contex, R.raw.game_over, 0)
         attackSoundId = soundPool.load(contex, R.raw.attack_kick, 0)
@@ -657,41 +663,55 @@ class UjimonController(val width : Int,
     }
 
     override fun playIntroMusic() {
-        introSongPlayer.start()
+        if(musicPlayer == null) {
+            musicPlayer = MediaPlayer.create(contex, R.raw.intro_song).apply {
+                start()
+                isLooping = true
+                setVolume(0.15f, 0.15f)
+            }
+        }
     }
 
     override fun playBattleMusic() {
-        if (introSongPlayer.isPlaying)
-            introSongPlayer.stop()
-        if (healingSongPlayer.isPlaying)
-            healingSongPlayer.stop()
+        if(musicPlayer != null){
+            musicPlayer!!.release()
 
-        fightSongPlayer.start()
+            musicPlayer = MediaPlayer.create(contex, R.raw.fight_song).apply {
+                start()
+                isLooping = true
+                setVolume(0.15f, 0.15f)
+            }
+        }
     }
 
     override fun playHealingMusic() {
-        if (fightSongPlayer.isPlaying)
-            fightSongPlayer.stop()
-        if (introSongPlayer.isPlaying)
-            introSongPlayer.stop()
+        if(musicPlayer != null){
+            musicPlayer!!.release()
 
-        healingSongPlayer.start()
+            musicPlayer = MediaPlayer.create(contex, R.raw.healing_song).apply {
+                start()
+                isLooping = true
+                setVolume(0.15f, 0.15f)
+            }
+        }
     }
 
     override fun playVictory() {
-        soundPool.play(victoryId, 1f, 1f, 0, 0, 1f)
+        musicPlayer!!.release()
+        soundPool.play(victoryId, 1f, 1f, 1, 3, 1f)
     }
 
     override fun playDefeated() {
-        soundPool.play(defeatId, 1f, 1f, 0, 0, 1f)
+        musicPlayer!!.release()
+        soundPool.play(defeatId, 1f, 1f, 1, 3, 1f)
     }
 
     override fun playNormalAttackSound() {
-        soundPool.play(attackSoundId, 1f, 1f, 0, 0, 1f)
+        soundPool.play(attackSoundId, 0.6f, 0.8f, 0, 0, 1f)
     }
 
     override fun playPowerAttackSound() {
-        soundPool.play(powerSoundId, 1f, 1f, 0, 0, 1f)
+        soundPool.play(powerSoundId, 0.6f, 0.8f, 0, 0, 1f)
     }
 
 }

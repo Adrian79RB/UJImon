@@ -1,6 +1,7 @@
 package es.uji.al385729.ujimon
 
 import android.content.pm.ActivityInfo
+import android.media.MediaPlayer
 import android.util.DisplayMetrics
 import es.uji.al385729.ujimon.Controller.UjimonController
 import es.uji.vj1229.framework.GameActivity

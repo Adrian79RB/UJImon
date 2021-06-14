@@ -31,6 +31,11 @@ object Assets {
     var ujiball : Bitmap? = null
     var emptyujiball : Bitmap? = null
     var ujidex : Bitmap? = null
+    var burned : Bitmap? = null
+    var cold : Bitmap? = null
+    var frightened : Bitmap? = null
+    var trapped : Bitmap? = null
+    var buried : Bitmap? = null
 
     private var plant : SpriteSheet? = null
     var plantAttack : AnimatedBitmap? = null
@@ -163,6 +168,21 @@ object Assets {
 
         emptyujiball?.recycle()
         emptyujiball = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(resources, R.drawable.empty_ujiball), cellSize, cellSize, true)
+
+        burned?.recycle()
+        burned = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(resources, R.drawable.burned), cellSize, cellSize, true)
+
+        cold?.recycle()
+        cold = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(resources, R.drawable.cold), cellSize, cellSize, true)
+
+        frightened?.recycle()
+        frightened = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(resources, R.drawable.frightened), cellSize, cellSize, true)
+
+        trapped?.recycle()
+        trapped = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(resources, R.drawable.trapped), cellSize, cellSize, true)
+
+        buried?.recycle()
+        buried = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(resources, R.drawable.buried), cellSize, cellSize, true)
 
         ujidex?.recycle()
         ujidex = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(resources, R.drawable.ujidex), cellSize * BATTLEFIELD_WIDTH, cellSize * BATTLEFIELD_HEIGHT, true )

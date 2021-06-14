@@ -2,9 +2,10 @@ package es.uji.al385729.ujimon.Model
 
 import android.graphics.Bitmap
 import es.uji.al385729.ujimon.Controller.UjimonController
+import java.util.concurrent.locks.Condition
 import kotlin.random.Random
 
-class Ujimon(var healthPoints: Float, val name: String, val imageAsset: Bitmap?, val buttonAsset : Bitmap?, var dead: Boolean, val type : Type) {
+class Ujimon(var healthPoints: Float, val name: String, val imageAsset: Bitmap?, val buttonAsset : Bitmap?, var dead: Boolean, val type : Type, var condition : Pair<Int, Type>) {
     var ujimonAttacks : Array<Attack> = Array<Attack>(4){ Attack ("", Type.NORMAL, 0f, 0f, 0f) }
     var ujimonTolerance : Array<Tolerance> = Array<Tolerance>(5){ Tolerance(Type.NORMAL,0f) }
     var attacksArray  = AttacksArray()
@@ -88,6 +89,32 @@ class Ujimon(var healthPoints: Float, val name: String, val imageAsset: Bitmap?,
             dead = true
             healthPoints = 0f
         }
+        if(attack.type!=Type.NORMAL){
+            if(condition.second == Type.NORMAL){
+                val probability = Random.nextFloat()
+                if(probability<0.5){
+                    condition = Pair(5, attack.type)
+                }
+            }
+        }
+
+    }
+
+    fun receiveConditionDamage(){
+        for (tolerance in ujimonTolerance) {
+            if (tolerance.type ==condition.second)
+                healthPoints = Math.round(healthPoints - (30 * tolerance.amount)).toFloat()
+        }
+        if(condition.second!=Type.NORMAL){
+            condition = Pair(condition.first-1, condition.second)
+            if(condition.first==0)
+                condition = Pair(0, Type.NORMAL)
+        }
+        if(healthPoints <= 0) {
+            dead = true
+            healthPoints = 0f
+        }
+
     }
 
     fun attackEffectiveness(attack : Attack): String {

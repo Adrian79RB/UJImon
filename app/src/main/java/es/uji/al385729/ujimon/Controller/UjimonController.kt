@@ -86,6 +86,11 @@ class UjimonController(val width : Int,
     private var playerScore = 0f
     private var startingPlayerUjiballRow = 8
     private var startingEnemyUjiballRow = 1
+    private var enemyConditionCol = 22
+    private var enemyConditionRow = 1
+    private var playerConditionCol = 2
+    private var playerConditionRow = 8
+    private var actualCondition = Type.NORMAL
     var efectivenessMessage = ""
 
     val playerTrainer = Trainer()
@@ -159,6 +164,7 @@ class UjimonController(val width : Int,
                                 model.createEnemyTrainer3Team()
                                 model.changeModelState(UjimonModel.UjimonState.PLAYER_TURN)
                                 model.establishTrainersUjimon()
+                                chosenUjimon = model.chooseEnemyActiveUjimon(gameLevel)
                                 justClickedBattle = true
 
                                 playBattleMusic()
@@ -340,15 +346,41 @@ class UjimonController(val width : Int,
             model.changeModelState(UjimonModel.UjimonState.WAITING)
         }
 
+        if(model.state == UjimonModel.UjimonState.PLAYER_CONDITION){
+            actualCondition = model.checkConditions(playerTrainer.ujimonSelected)
+            model.changeModelState(UjimonModel.UjimonState.WAITING)
+        }
+
+        if(model.state == UjimonModel.UjimonState.COMPUTER_CONDITION){
+            when(gameLevel){
+                1->{
+                    actualCondition = model.checkConditions(computerEnemy1.ujimonSelected)
+                }
+                2->{
+                    actualCondition = model.checkConditions(computerEnemy2.ujimonSelected)
+                }
+                3->{
+                    actualCondition = model.checkConditions(computerEnemy3.ujimonSelected)
+                }
+            }
+            model.changeModelState(UjimonModel.UjimonState.WAITING)
+        }
+
         if(model.state == UjimonModel.UjimonState.WAITING){
             waitingTime += deltaTime
             if(waitingTime >= waitingTimer){
                 waitingTime = 0f
 
                 if(model.lastState == UjimonModel.UjimonState.PLAYER_ATTACK || model.lastState == UjimonModel.UjimonState.PLAYER_CHOOSE_UJIMON){
+                    model.changeModelState(UjimonModel.UjimonState.COMPUTER_CONDITION)
+                }
+                else if(model.lastState == UjimonModel.UjimonState.COMPUTER_CONDITION){
                     model.changeModelState(UjimonModel.UjimonState.COMPUTER_TURN)
                 }
-                else if(model.lastState == UjimonModel.UjimonState.COMPUTER_TURN) {
+                if(model.lastState == UjimonModel.UjimonState.COMPUTER_TURN){
+                    model.changeModelState(UjimonModel.UjimonState.PLAYER_CONDITION)
+                }
+                else if(model.lastState == UjimonModel.UjimonState.PLAYER_CONDITION) {
                     if(playerTrainer.ujimonSelected.dead){
                         if(model.checkPlayerUjimonTeamDead()){
                             model.changeModelState(UjimonModel.UjimonState.END)
@@ -380,12 +412,14 @@ class UjimonController(val width : Int,
                 graphics.drawBitmap( Assets.battleButton, battleButtonColInt * cellSide + xOffset, battleButtonRowInt * cellSide + yOffset)
         }
 
-        if(model.state == UjimonModel.UjimonState.PLAYER_TURN || model.state == UjimonModel.UjimonState.COMPUTER_TURN || model.state == UjimonModel.UjimonState.WAITING || model.state == UjimonModel.UjimonState.PLAYER_ATTACK){
+        if(model.state == UjimonModel.UjimonState.PLAYER_TURN || model.state == UjimonModel.UjimonState.COMPUTER_TURN || model.state == UjimonModel.UjimonState.WAITING || model.state == UjimonModel.UjimonState.PLAYER_ATTACK
+                || model.state == UjimonModel.UjimonState.PLAYER_CONDITION || model.state == UjimonModel.UjimonState.COMPUTER_CONDITION){
             graphics.setTextColor(TEXT_COLOR)
             graphics.drawBitmap(Assets.battlefield, 0f,0f)
             graphics.drawBitmap(Assets.promptBox, prompBoxPos * cellSide + xOffset,prompBoxPos * cellSide + yOffset )
 
             drawUjimonsInBattle()
+            drawConditions()
 
             when(gameLevel){
                 1->{
@@ -431,6 +465,62 @@ class UjimonController(val width : Int,
                 }
                 else
                     graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset,  chosenUjimon!!.name + " have failed the attack.")
+            }
+            else if(model.lastState == UjimonModel.UjimonState.PLAYER_CONDITION){
+                when(actualCondition){
+                    Type.FIRE->{
+                        graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset, playerTrainer.ujimonSelected.name + " receives damage because")
+                        graphics.drawText(promptColumn * cellSide + xOffset, (promptRow+1) * cellSide + yOffset, "he's burned")
+                    }
+                    Type.PLANT->{
+                        graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset, playerTrainer.ujimonSelected.name + " receives damage because")
+                        graphics.drawText(promptColumn * cellSide + xOffset, (promptRow+1) * cellSide + yOffset,"he's trapped")
+                    }
+                    Type.DARKNESS->{
+                        graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset, playerTrainer.ujimonSelected.name + " receives damage because")
+                        graphics.drawText(promptColumn * cellSide + xOffset, (promptRow+1) * cellSide + yOffset,"he's frightened")
+                    }
+                    Type.WATER->{
+                        graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset, playerTrainer.ujimonSelected.name + " receives damage because")
+                        graphics.drawText(promptColumn * cellSide + xOffset, (promptRow+1) * cellSide + yOffset,"he's cold")
+                    }
+                    Type.GROUND->{
+                        graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset, playerTrainer.ujimonSelected.name + " receives damage because")
+                        graphics.drawText(promptColumn * cellSide + xOffset, (promptRow+1) * cellSide + yOffset,"he's buried")
+                    }
+                    Type.NORMAL->{
+                        graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset, playerTrainer.ujimonSelected.name + " it's not affected ")
+                        graphics.drawText(promptColumn * cellSide + xOffset, (promptRow+1) * cellSide + yOffset, "by any condition")
+                    }
+                }
+            }
+            else if(model.lastState == UjimonModel.UjimonState.COMPUTER_CONDITION){
+                when(actualCondition){
+                    Type.FIRE->{
+                        graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset, chosenUjimon!!.name + " receives damage because")
+                        graphics.drawText(promptColumn * cellSide + xOffset, (promptRow+1) * cellSide + yOffset,"he's burned")
+                    }
+                    Type.PLANT->{
+                        graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset, chosenUjimon!!.name + " receives damage because")
+                        graphics.drawText(promptColumn * cellSide + xOffset, (promptRow+1) * cellSide + yOffset, "he's trapped")
+                    }
+                    Type.DARKNESS->{
+                        graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset, chosenUjimon!!.name + " receives damage because")
+                        graphics.drawText(promptColumn * cellSide + xOffset, (promptRow+1) * cellSide + yOffset,"he's frightened")
+                    }
+                    Type.WATER->{
+                        graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset, chosenUjimon!!.name + " receives damage because")
+                        graphics.drawText(promptColumn * cellSide + xOffset, (promptRow+1) * cellSide + yOffset,"he's cold")
+                    }
+                    Type.GROUND->{
+                        graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset, chosenUjimon!!.name + " receives damage because")
+                        graphics.drawText(promptColumn * cellSide + xOffset, (promptRow+1) * cellSide + yOffset,"he's buried")
+                    }
+                    Type.NORMAL->{
+                        graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset, chosenUjimon!!.name + " it's not affected")
+                        graphics.drawText(promptColumn * cellSide + xOffset, (promptRow+1) * cellSide + yOffset,"by any condition")
+                    }
+                }
             }
             else if(model.lastState == UjimonModel.UjimonState.PLAYER_ATTACK) {
                 if(chosenAttack != null) {
@@ -649,6 +739,94 @@ class UjimonController(val width : Int,
             }
             j++
         }
+    }
+
+    private fun drawConditions(){
+        if(playerTrainer.ujimonSelected.condition.first > 0){
+            when(playerTrainer.ujimonSelected.condition.second){
+                Type.FIRE->{
+                    graphics.drawBitmap(Assets.burned, playerConditionCol * cellSide + xOffset, playerConditionRow * cellSide + yOffset)
+                }
+                Type.WATER->{
+                    graphics.drawBitmap(Assets.cold, playerConditionCol * cellSide + xOffset, playerConditionRow * cellSide + yOffset)
+                }
+                Type.PLANT->{
+                    graphics.drawBitmap(Assets.trapped, playerConditionCol * cellSide + xOffset, playerConditionRow * cellSide + yOffset)
+                }
+                Type.DARKNESS->{
+                    graphics.drawBitmap(Assets.frightened, playerConditionCol * cellSide + xOffset, playerConditionRow * cellSide + yOffset)
+                }
+                Type.GROUND->{
+                    graphics.drawBitmap(Assets.buried, playerConditionCol * cellSide + xOffset, playerConditionRow * cellSide + yOffset)
+                }
+            }
+        }
+        when(gameLevel){
+            1->{
+                if(computerEnemy1.ujimonSelected.condition.first > 0){
+                    when(computerEnemy1.ujimonSelected.condition.second){
+                        Type.FIRE->{
+                            graphics.drawBitmap(Assets.burned, enemyConditionCol * cellSide + xOffset, enemyConditionRow * cellSide + yOffset)
+                        }
+                        Type.WATER->{
+                            graphics.drawBitmap(Assets.cold, enemyConditionCol * cellSide + xOffset, enemyConditionRow * cellSide + yOffset)
+                        }
+                        Type.PLANT->{
+                            graphics.drawBitmap(Assets.trapped, enemyConditionCol * cellSide + xOffset, enemyConditionRow * cellSide + yOffset)
+                        }
+                        Type.DARKNESS->{
+                            graphics.drawBitmap(Assets.frightened, enemyConditionCol * cellSide + xOffset, enemyConditionRow * cellSide + yOffset)
+                        }
+                        Type.GROUND->{
+                            graphics.drawBitmap(Assets.buried, enemyConditionCol * cellSide + xOffset, enemyConditionRow * cellSide + yOffset)
+                        }
+                    }
+                }
+            }
+            2->{
+                if(computerEnemy2.ujimonSelected.condition.first > 0){
+                    when(computerEnemy2.ujimonSelected.condition.second){
+                        Type.FIRE->{
+                            graphics.drawBitmap(Assets.burned, enemyConditionCol * cellSide + xOffset, enemyConditionRow * cellSide + yOffset)
+                        }
+                        Type.WATER->{
+                            graphics.drawBitmap(Assets.cold, enemyConditionCol * cellSide + xOffset, enemyConditionRow * cellSide + yOffset)
+                        }
+                        Type.PLANT->{
+                            graphics.drawBitmap(Assets.trapped, enemyConditionCol * cellSide + xOffset, enemyConditionRow * cellSide + yOffset)
+                        }
+                        Type.DARKNESS->{
+                            graphics.drawBitmap(Assets.frightened, enemyConditionCol * cellSide + xOffset, enemyConditionRow * cellSide + yOffset)
+                        }
+                        Type.GROUND->{
+                            graphics.drawBitmap(Assets.buried, enemyConditionCol * cellSide + xOffset, enemyConditionRow * cellSide + yOffset)
+                        }
+                    }
+                }
+            }
+            3->{
+                if(computerEnemy3.ujimonSelected.condition.first > 0){
+                    when(computerEnemy3.ujimonSelected.condition.second){
+                        Type.FIRE->{
+                            graphics.drawBitmap(Assets.burned, enemyConditionCol * cellSide + xOffset, enemyConditionRow * cellSide + yOffset)
+                        }
+                        Type.WATER->{
+                            graphics.drawBitmap(Assets.cold, enemyConditionCol * cellSide + xOffset, enemyConditionRow * cellSide + yOffset)
+                        }
+                        Type.PLANT->{
+                            graphics.drawBitmap(Assets.trapped, enemyConditionCol * cellSide + xOffset, enemyConditionRow * cellSide + yOffset)
+                        }
+                        Type.DARKNESS->{
+                            graphics.drawBitmap(Assets.frightened, enemyConditionCol * cellSide + xOffset, enemyConditionRow * cellSide + yOffset)
+                        }
+                        Type.GROUND->{
+                            graphics.drawBitmap(Assets.buried, enemyConditionCol * cellSide + xOffset, enemyConditionRow * cellSide + yOffset)
+                        }
+                    }
+                }
+            }
+        }
+
     }
 
     private fun prepareSoundMedia(contex: Context) {

@@ -5,7 +5,7 @@ import es.uji.al385729.ujimon.Controller.UjimonController
 import java.util.concurrent.locks.Condition
 import kotlin.random.Random
 
-class Ujimon(var healthPoints: Float, val name: String, val imageAsset: Bitmap?, val buttonAsset : Bitmap?, var dead: Boolean, val type : Type, var condition : Pair<Int, Type>) {
+class Ujimon(var healthPoints: Float, val name: String, val imageAsset: Bitmap?, val buttonAsset : Bitmap?, val backAsset : Bitmap?, var dead: Boolean, val type : Type, var condition : Pair<Int, Type>) {
     var ujimonAttacks : Array<Attack> = Array<Attack>(4){ Attack ("", Type.NORMAL, 0f, 0f, 0f) }
     var ujimonTolerance : Array<Tolerance> = Array<Tolerance>(5){ Tolerance(Type.NORMAL,0f) }
     var attacksArray  = AttacksArray()

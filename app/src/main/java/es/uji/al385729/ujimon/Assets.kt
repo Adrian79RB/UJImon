@@ -135,6 +135,37 @@ object Assets {
         assetsButton[9]?.recycle()
         assetsButton[9] = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(resources, R.drawable.serwat_button), cellSize * UJIMON_SIZE_BUTTON, cellSize * UJIMON_SIZE_BUTTON, true)
 
+        assetsFromBack[0]?.recycle()
+        assetsFromBack[0] = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(resources, R.drawable.maglug_back), cellSize * UJIMON_SIZE_COMBAT, cellSize * UJIMON_SIZE_COMBAT, true)
+
+        assetsFromBack[1]?.recycle()
+        assetsFromBack[1] = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(resources, R.drawable.obsho_back), cellSize * UJIMON_SIZE_COMBAT, cellSize * UJIMON_SIZE_COMBAT, true)
+
+        assetsFromBack[2]?.recycle()
+        assetsFromBack[2] = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(resources, R.drawable.redash_back), cellSize * UJIMON_SIZE_COMBAT, cellSize * UJIMON_SIZE_COMBAT, true)
+
+        assetsFromBack[3]?.recycle()
+        assetsFromBack[3] = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(resources, R.drawable.sworsth_back), cellSize * UJIMON_SIZE_COMBAT, cellSize * UJIMON_SIZE_COMBAT, true)
+
+        assetsFromBack[4]?.recycle()
+        assetsFromBack[4] = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(resources, R.drawable.aracleaf_back), cellSize * UJIMON_SIZE_COMBAT, cellSize * UJIMON_SIZE_COMBAT, true)
+
+        assetsFromBack[5]?.recycle()
+        assetsFromBack[5] = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(resources, R.drawable.bolhip_back), cellSize * UJIMON_SIZE_COMBAT, cellSize * UJIMON_SIZE_COMBAT, true)
+
+        assetsFromBack[6]?.recycle()
+        assetsFromBack[6] = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(resources, R.drawable.conder_back), cellSize * UJIMON_SIZE_COMBAT, cellSize * UJIMON_SIZE_COMBAT, true)
+
+        assetsFromBack[7]?.recycle()
+        assetsFromBack[7] = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(resources, R.drawable.dihap_back), cellSize * UJIMON_SIZE_COMBAT, cellSize * UJIMON_SIZE_COMBAT, true)
+
+        assetsFromBack[8]?.recycle()
+        assetsFromBack[8] = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(resources, R.drawable.golroc_back), cellSize * UJIMON_SIZE_COMBAT, cellSize * UJIMON_SIZE_COMBAT, true)
+
+        assetsFromBack[9]?.recycle()
+        assetsFromBack[9] = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(resources, R.drawable.serwat_back), cellSize * UJIMON_SIZE_COMBAT, cellSize * UJIMON_SIZE_COMBAT, true)
+
+
 
         battleButton?.recycle()
         battleButton = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(resources, R.drawable.battle_button), cellSize * BUTTONS_WIDTH, cellSize * UJIMON_SIZE_BUTTON, true)

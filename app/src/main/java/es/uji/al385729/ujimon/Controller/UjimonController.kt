@@ -676,7 +676,7 @@ class UjimonController(val width : Int,
     }
 
     private fun drawUjimonsInBattle() {
-        graphics.drawBitmap(playerTrainer.ujimonSelected.imageAsset, battlePlayerUjimonCol * cellSide + xOffset, battlePlayerUjimonRow * cellSide + yOffset)
+        graphics.drawBitmap(playerTrainer.ujimonSelected.backAsset, battlePlayerUjimonCol * cellSide + xOffset, battlePlayerUjimonRow * cellSide + yOffset)
         graphics.drawText(battlePlayerUjimonCol * cellSide + xOffset + Assets.UJIMON_SIZE_COMBAT + 1,(battlePlayerUjimonRow+ Assets.UJIMON_SIZE_COMBAT + 1) * cellSide + yOffset,"${playerTrainer.ujimonSelected.name} HP: ${playerTrainer.ujimonSelected.healthPoints}")
         chooseTextColor(playerTrainer.ujimonSelected.type)
         graphics.drawText(battlePlayerUjimonCol * cellSide + xOffset + Assets.UJIMON_SIZE_COMBAT,(battlePlayerUjimonRow + Assets.UJIMON_SIZE_COMBAT) * cellSide + yOffset,"Type: ${playerTrainer.ujimonSelected.type}")

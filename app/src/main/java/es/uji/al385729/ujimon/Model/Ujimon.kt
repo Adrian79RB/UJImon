@@ -107,7 +107,7 @@ class Ujimon(var healthPoints: Float, val name: String, val imageAsset: Bitmap?,
         }
         if(condition.second!=Type.NORMAL){
             condition = Pair(condition.first-1, condition.second)
-            if(condition.first==0)
+            if(condition.first<=0)
                 condition = Pair(0, Type.NORMAL)
         }
         if(healthPoints <= 0) {

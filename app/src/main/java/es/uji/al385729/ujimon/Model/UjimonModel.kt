@@ -298,13 +298,73 @@ class UjimonModel(val playerTrainer : Trainer, val enemyTrainer1 : Trainer, val 
 
 
 
-    fun checkConditions(selectedUjimon: Ujimon): Type {
-        if(selectedUjimon.condition.second != Type.NORMAL){
-            if (selectedUjimon.condition.first > 0){
-                selectedUjimon.receiveConditionDamage()
+    fun checkConditions(gameLevel: Int): Type {
+
+        when (gameLevel) {
+            -1 -> {
+                if(playerTrainer.ujimonSelected.condition.second != Type.NORMAL && playerTrainer.ujimonSelected.condition.first > 0) {
+                    playerTrainer.ujimonSelected.receiveConditionDamage()
+                }
+                return playerTrainer.ujimonSelected.condition.second
+            }
+            1 -> {
+                if(enemyTrainer1.ujimonSelected.condition.second != Type.NORMAL && enemyTrainer1.ujimonSelected.condition.first > 0) {
+                    enemyTrainer1.ujimonSelected.receiveConditionDamage()
+                    if (enemyTrainer1.ujimonSelected.dead) {
+                        if (checkEnemyUjimonTeamDead(enemyTrainer1)) {
+                            changeModelState(UjimonState.HEALTH_HEALING)
+                        } else {
+                            for (ujimon in enemyTrainer1.ujimonTeam) {
+                                if (!ujimon.dead && ujimon.type != Type.NORMAL) {
+                                    enemyTrainer1.ujimonSelected = ujimon
+                                    break
+                                }
+                            }
+                        }
+                    }
+                }
+
+                return enemyTrainer1.ujimonSelected.condition.second
+            }
+
+            2 -> {
+                if(enemyTrainer2.ujimonSelected.condition.second != Type.NORMAL && enemyTrainer2.ujimonSelected.condition.first > 0) {
+                    enemyTrainer2.ujimonSelected.receiveConditionDamage()
+                    if (enemyTrainer2.ujimonSelected.dead) {
+                        if (checkEnemyUjimonTeamDead(enemyTrainer2)) {
+                            changeModelState(UjimonState.HEALTH_HEALING)
+                        } else {
+                            for (ujimon in enemyTrainer2.ujimonTeam) {
+                                if (!ujimon.dead && ujimon.type != Type.NORMAL) {
+                                    enemyTrainer2.ujimonSelected = ujimon
+                                    break
+                                }
+                            }
+                        }
+                    }
+                }
+                return enemyTrainer2.ujimonSelected.condition.second
+            }
+
+            else -> {
+                if(enemyTrainer3.ujimonSelected.condition.second != Type.NORMAL && enemyTrainer3.ujimonSelected.condition.first > 0) {
+                    enemyTrainer3.ujimonSelected.receiveConditionDamage()
+                    if (enemyTrainer3.ujimonSelected.dead) {
+                        if (checkEnemyUjimonTeamDead(enemyTrainer3)) {
+                            changeModelState(UjimonState.HEALTH_HEALING)
+                        } else {
+                            for (ujimon in enemyTrainer3.ujimonTeam) {
+                                if (!ujimon.dead && ujimon.type != Type.NORMAL) {
+                                    enemyTrainer3.ujimonSelected = ujimon
+                                    break
+                                }
+                            }
+                        }
+                    }
+                }
+                return enemyTrainer3.ujimonSelected.condition.second
             }
         }
-        return selectedUjimon.condition.second
     }
 
 }

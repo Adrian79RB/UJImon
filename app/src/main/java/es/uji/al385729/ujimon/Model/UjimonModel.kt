@@ -259,6 +259,7 @@ class UjimonModel(val playerTrainer : Trainer, val enemyTrainer1 : Trainer, val 
     fun healUjimonSelected(index: Int) {
         playerTrainer.ujimonTeam[index].healHealthPoints()
         playerTrainer.ujimonTeam[index].recoverEnergy()
+        playerTrainer.ujimonTeam[index].recoverFromCondition()
     }
 
     fun chooseEnemyUjimonAttack(gameLevel: Int): Attack? {

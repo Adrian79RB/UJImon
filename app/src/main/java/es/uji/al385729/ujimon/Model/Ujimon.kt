@@ -150,4 +150,8 @@ class Ujimon(var healthPoints: Float, val name: String, val imageAsset: Bitmap?,
         }
     }
 
+    fun recoverFromCondition(){
+        condition = Pair(0, Type.NORMAL)
+    }
+
 }

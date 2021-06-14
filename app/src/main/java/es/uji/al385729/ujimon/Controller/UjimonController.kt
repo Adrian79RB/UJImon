@@ -710,26 +710,12 @@ class UjimonController(val width : Int,
         chooseTextColor(playerTrainer.ujimonSelected.type)
         graphics.drawText(battlePlayerUjimonCol * cellSide + xOffset + Assets.UJIMON_SIZE_COMBAT,(battlePlayerUjimonRow + Assets.UJIMON_SIZE_COMBAT) * cellSide + yOffset,"Type: ${playerTrainer.ujimonSelected.type}")
         graphics.setTextColor(TEXT_COLOR)
-        when(gameLevel){
-            1->{
-                graphics.drawBitmap(computerEnemy1.ujimonSelected.imageAsset, battleEnemuUjimonCol * cellSide + xOffset, battleEnemyUjimonRow * cellSide + yOffset)
-                graphics.drawText(battleEnemuUjimonCol * cellSide + xOffset + Assets.UJIMON_SIZE_COMBAT + 1,battleEnemyUjimonRow * cellSide + yOffset,"${computerEnemy1.ujimonSelected.name} HP: ${computerEnemy1.ujimonSelected.healthPoints}")
-                chooseTextColor(computerEnemy1.ujimonSelected.type)
-                graphics.drawText(battleEnemuUjimonCol * cellSide + xOffset + Assets.UJIMON_SIZE_COMBAT,(battleEnemyUjimonRow - 1) * cellSide + yOffset,"Type: ${computerEnemy1.ujimonSelected.type}")
-            }
-            2->{
-                graphics.drawBitmap(computerEnemy2.ujimonSelected.imageAsset, battleEnemuUjimonCol * cellSide + xOffset, battleEnemyUjimonRow * cellSide + yOffset)
-                graphics.drawText(battleEnemuUjimonCol * cellSide + xOffset + Assets.UJIMON_SIZE_COMBAT + 1,battleEnemyUjimonRow * cellSide + yOffset,"${computerEnemy2.ujimonSelected.name} HP: ${computerEnemy2.ujimonSelected.healthPoints}")
-                chooseTextColor(computerEnemy2.ujimonSelected.type)
-                graphics.drawText(battleEnemuUjimonCol * cellSide + xOffset + Assets.UJIMON_SIZE_COMBAT,(battleEnemyUjimonRow - 1) * cellSide + yOffset,"Type: ${computerEnemy2.ujimonSelected.type}")
-            }
-            3->{
-                graphics.drawBitmap(computerEnemy3.ujimonSelected.imageAsset, battleEnemuUjimonCol * cellSide + xOffset, battleEnemyUjimonRow * cellSide + yOffset)
-                graphics.drawText(battleEnemuUjimonCol * cellSide + xOffset + Assets.UJIMON_SIZE_COMBAT + 1,battleEnemyUjimonRow * cellSide + yOffset,"${computerEnemy3.ujimonSelected.name} HP: ${computerEnemy3.ujimonSelected.healthPoints}")
-                chooseTextColor(computerEnemy3.ujimonSelected.type)
-                graphics.drawText(battleEnemuUjimonCol * cellSide + xOffset + Assets.UJIMON_SIZE_COMBAT,(battleEnemyUjimonRow - 1) * cellSide + yOffset,"Type: ${computerEnemy3.ujimonSelected.type}")
-            }
-        }
+
+        graphics.drawBitmap(chosenUjimon!!.imageAsset, battleEnemuUjimonCol * cellSide + xOffset, battleEnemyUjimonRow * cellSide + yOffset)
+        graphics.drawText(battleEnemuUjimonCol * cellSide + xOffset + Assets.UJIMON_SIZE_COMBAT + 1,battleEnemyUjimonRow * cellSide + yOffset,"${chosenUjimon!!.name} HP: ${chosenUjimon!!.healthPoints}")
+        chooseTextColor(chosenUjimon!!.type)
+        graphics.drawText(battleEnemuUjimonCol * cellSide + xOffset + Assets.UJIMON_SIZE_COMBAT,(battleEnemyUjimonRow - 1) * cellSide + yOffset,"Type: ${chosenUjimon!!.type}")
+
         graphics.setTextColor(TEXT_COLOR)
     }
 
@@ -781,72 +767,25 @@ class UjimonController(val width : Int,
                 }
             }
         }
-        when(gameLevel){
-            1->{
-                if(computerEnemy1.ujimonSelected.condition.first > 0){
-                    when(computerEnemy1.ujimonSelected.condition.second){
-                        Type.FIRE->{
-                            graphics.drawBitmap(Assets.burned, enemyConditionCol * cellSide + xOffset, enemyConditionRow * cellSide + yOffset)
-                        }
-                        Type.WATER->{
-                            graphics.drawBitmap(Assets.cold, enemyConditionCol * cellSide + xOffset, enemyConditionRow * cellSide + yOffset)
-                        }
-                        Type.PLANT->{
-                            graphics.drawBitmap(Assets.trapped, enemyConditionCol * cellSide + xOffset, enemyConditionRow * cellSide + yOffset)
-                        }
-                        Type.DARKNESS->{
-                            graphics.drawBitmap(Assets.frightened, enemyConditionCol * cellSide + xOffset, enemyConditionRow * cellSide + yOffset)
-                        }
-                        Type.GROUND->{
-                            graphics.drawBitmap(Assets.buried, enemyConditionCol * cellSide + xOffset, enemyConditionRow * cellSide + yOffset)
-                        }
-                    }
+        if(chosenUjimon!!.condition.first > 0){
+            when(chosenUjimon!!.condition.second){
+                Type.FIRE->{
+                    graphics.drawBitmap(Assets.burned, enemyConditionCol * cellSide + xOffset, enemyConditionRow * cellSide + yOffset)
                 }
-            }
-            2->{
-                if(computerEnemy2.ujimonSelected.condition.first > 0){
-                    when(computerEnemy2.ujimonSelected.condition.second){
-                        Type.FIRE->{
-                            graphics.drawBitmap(Assets.burned, enemyConditionCol * cellSide + xOffset, enemyConditionRow * cellSide + yOffset)
-                        }
-                        Type.WATER->{
-                            graphics.drawBitmap(Assets.cold, enemyConditionCol * cellSide + xOffset, enemyConditionRow * cellSide + yOffset)
-                        }
-                        Type.PLANT->{
-                            graphics.drawBitmap(Assets.trapped, enemyConditionCol * cellSide + xOffset, enemyConditionRow * cellSide + yOffset)
-                        }
-                        Type.DARKNESS->{
-                            graphics.drawBitmap(Assets.frightened, enemyConditionCol * cellSide + xOffset, enemyConditionRow * cellSide + yOffset)
-                        }
-                        Type.GROUND->{
-                            graphics.drawBitmap(Assets.buried, enemyConditionCol * cellSide + xOffset, enemyConditionRow * cellSide + yOffset)
-                        }
-                    }
+                Type.WATER->{
+                    graphics.drawBitmap(Assets.cold, enemyConditionCol * cellSide + xOffset, enemyConditionRow * cellSide + yOffset)
                 }
-            }
-            3->{
-                if(computerEnemy3.ujimonSelected.condition.first > 0){
-                    when(computerEnemy3.ujimonSelected.condition.second){
-                        Type.FIRE->{
-                            graphics.drawBitmap(Assets.burned, enemyConditionCol * cellSide + xOffset, enemyConditionRow * cellSide + yOffset)
-                        }
-                        Type.WATER->{
-                            graphics.drawBitmap(Assets.cold, enemyConditionCol * cellSide + xOffset, enemyConditionRow * cellSide + yOffset)
-                        }
-                        Type.PLANT->{
-                            graphics.drawBitmap(Assets.trapped, enemyConditionCol * cellSide + xOffset, enemyConditionRow * cellSide + yOffset)
-                        }
-                        Type.DARKNESS->{
-                            graphics.drawBitmap(Assets.frightened, enemyConditionCol * cellSide + xOffset, enemyConditionRow * cellSide + yOffset)
-                        }
-                        Type.GROUND->{
-                            graphics.drawBitmap(Assets.buried, enemyConditionCol * cellSide + xOffset, enemyConditionRow * cellSide + yOffset)
-                        }
-                    }
+                Type.PLANT->{
+                    graphics.drawBitmap(Assets.trapped, enemyConditionCol * cellSide + xOffset, enemyConditionRow * cellSide + yOffset)
+                }
+                Type.DARKNESS->{
+                    graphics.drawBitmap(Assets.frightened, enemyConditionCol * cellSide + xOffset, enemyConditionRow * cellSide + yOffset)
+                }
+                Type.GROUND->{
+                    graphics.drawBitmap(Assets.buried, enemyConditionCol * cellSide + xOffset, enemyConditionRow * cellSide + yOffset)
                 }
             }
         }
-
     }
 
     private fun prepareSoundMedia(contex: Context) {

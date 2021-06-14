@@ -149,7 +149,7 @@ object Assets {
         backButton = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(resources, R.drawable.back_button), cellSize * BUTTONS_WIDTH, cellSize * UJIMON_SIZE_BUTTON, true)
 
         replayButton?.recycle()
-        replayButton = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(resources, R.drawable.replay_button), cellSize * UJIMON_SIZE_BUTTON, cellSize* UJIMON_SIZE_BUTTON, true)
+        replayButton = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(resources, R.drawable.replay_button), cellSize * BUTTONS_WIDTH, cellSize* UJIMON_SIZE_BUTTON, true)
 
         deadCross?.recycle()
         deadCross = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(resources, R.drawable.dead_cross), cellSize * UJIMON_SIZE_BUTTON, cellSize * UJIMON_SIZE_BUTTON, true)

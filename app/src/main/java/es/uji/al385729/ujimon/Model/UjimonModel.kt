@@ -352,7 +352,7 @@ class UjimonModel(val playerTrainer : Trainer, val enemyTrainer1 : Trainer, val 
                     enemyTrainer3.ujimonSelected.receiveConditionDamage()
                     if (enemyTrainer3.ujimonSelected.dead) {
                         if (checkEnemyUjimonTeamDead(enemyTrainer3)) {
-                            changeModelState(UjimonState.HEALTH_HEALING)
+                            changeModelState(UjimonState.END)
                         } else {
                             for (ujimon in enemyTrainer3.ujimonTeam) {
                                 if (!ujimon.dead && ujimon.type != Type.NORMAL) {

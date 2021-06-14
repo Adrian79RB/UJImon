@@ -18,6 +18,7 @@ import es.uji.vj1229.framework.Graphics
 import es.uji.vj1229.framework.IGameController
 import es.uji.vj1229.framework.TouchHandler
 import java.lang.Float.min
+import java.util.concurrent.locks.Condition
 
 class UjimonController(val width : Int,
                         val height : Int, val contex : Context) : IGameController, UjimonModel.SoundPlayer {
@@ -72,8 +73,8 @@ class UjimonController(val width : Int,
     private val attackButtonRow = 11
     private val changeButtonCol = 16
     private val changeButtonRow = 11
-    private val battleButtonRow = 11 * cellSide + xOffset
-    private val battleButtonColumn = 18 * cellSide + yOffset
+    private val battleButtonRow = 11 * cellSide + yOffset
+    private val battleButtonColumn = 18 * cellSide + xOffset
     private val promptRow = 3
     private val promptColumn = 2
     private var waitingTime = 0f
@@ -182,7 +183,8 @@ class UjimonController(val width : Int,
                                     } else {
                                         graphics.drawText(4 * cellSide + xOffset, 12 * cellSide + yOffset, "That ujimon has no HP, he can't fight")
                                     }
-                                } else if (correctedEventX >= battleButtonColInt && correctedEventX < battleButtonColInt + Assets.BUTTONS_WIDTH
+                                }
+                                if (correctedEventX >= battleButtonColInt && correctedEventX < battleButtonColInt + Assets.BUTTONS_WIDTH
                                         && correctedEventY >= battleButtonRowInt && correctedEventY < battleButtonRowInt + Assets.UJIMON_SIZE_BUTTON) {
                                     model.changeModelState(UjimonModel.UjimonState.PLAYER_TURN)
                                 }
@@ -281,6 +283,7 @@ class UjimonController(val width : Int,
                                         ujimonHealed = false
                                         gameLevel++
                                         model.changeModelState(UjimonModel.UjimonState.PLAYER_TURN)
+                                        chosenUjimon = model.chooseEnemyActiveUjimon(gameLevel)
                                         playBattleMusic()
                                     } else {
                                         model.healUjimonSelected(i)
@@ -293,6 +296,7 @@ class UjimonController(val width : Int,
                                         ujimonHealed = false
                                         gameLevel++
                                         model.changeModelState(UjimonModel.UjimonState.PLAYER_TURN)
+                                        chosenUjimon = model.chooseEnemyActiveUjimon(gameLevel)
                                         playBattleMusic()
                                     } else {
                                         model.healUjimonSelected(i)
@@ -303,7 +307,7 @@ class UjimonController(val width : Int,
                         }
 
                         if (model.state == UjimonModel.UjimonState.END) {
-                            if (correctedEventX >= battleButtonColInt && correctedEventX < battleButtonColInt + Assets.UJIMON_SIZE_BUTTON
+                            if (correctedEventX >= battleButtonColInt && correctedEventX < battleButtonColInt + Assets.BUTTONS_WIDTH
                                     && correctedEventY >= battleButtonRowInt && correctedEventY < battleButtonRowInt + Assets.UJIMON_SIZE_BUTTON) {
                                 val intent = Intent(contex, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                                 startActivity(contex, intent, null)
@@ -315,8 +319,8 @@ class UjimonController(val width : Int,
         }
 
         if (model.state == UjimonModel.UjimonState.COMPUTER_TURN) {
-            chosenAttack = model.chooseEnemyUjimonAttack(gameLevel)
             chosenUjimon = model.chooseEnemyActiveUjimon(gameLevel)
+            chosenAttack = model.chooseEnemyUjimonAttack(gameLevel)
 
 
             if (chosenAttack != null) {
@@ -365,7 +369,7 @@ class UjimonController(val width : Int,
 
         if (model.state == UjimonModel.UjimonState.COMPUTER_CONDITION) {
             actualCondition = model.checkConditions(gameLevel)
-            if (model.state != UjimonModel.UjimonState.HEALTH_HEALING)
+            if (model.state != UjimonModel.UjimonState.HEALTH_HEALING && model.state != UjimonModel.UjimonState.END)
                 model.changeModelState(UjimonModel.UjimonState.WAITING)
         }
 
@@ -375,11 +379,12 @@ class UjimonController(val width : Int,
                 waitingTime = 0f
 
                 if (model.lastState == UjimonModel.UjimonState.PLAYER_ATTACK || model.lastState == UjimonModel.UjimonState.PLAYER_CHOOSE_UJIMON) {
+                    chosenUjimon = model.chooseEnemyActiveUjimon(gameLevel)
                     model.changeModelState(UjimonModel.UjimonState.COMPUTER_CONDITION)
                 } else if (model.lastState == UjimonModel.UjimonState.COMPUTER_CONDITION) {
                     model.changeModelState(UjimonModel.UjimonState.COMPUTER_TURN)
                 }
-                if (model.lastState == UjimonModel.UjimonState.COMPUTER_TURN) {
+                else if (model.lastState == UjimonModel.UjimonState.COMPUTER_TURN) {
                     if (playerTrainer.ujimonSelected.dead) {
                         if (model.checkPlayerUjimonTeamDead()) {
                             model.changeModelState(UjimonModel.UjimonState.END)
@@ -475,60 +480,10 @@ class UjimonController(val width : Int,
                     graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset,  chosenUjimon!!.name + " have failed the attack.")
             }
             else if(model.lastState == UjimonModel.UjimonState.PLAYER_CONDITION){
-                when(actualCondition){
-                    Type.FIRE->{
-                        graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset, playerTrainer.ujimonSelected.name + " receives damage because")
-                        graphics.drawText(promptColumn * cellSide + xOffset, (promptRow+1) * cellSide + yOffset, "he's burned")
-                    }
-                    Type.PLANT->{
-                        graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset, playerTrainer.ujimonSelected.name + " receives damage because")
-                        graphics.drawText(promptColumn * cellSide + xOffset, (promptRow+1) * cellSide + yOffset,"he's trapped")
-                    }
-                    Type.DARKNESS->{
-                        graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset, playerTrainer.ujimonSelected.name + " receives damage because")
-                        graphics.drawText(promptColumn * cellSide + xOffset, (promptRow+1) * cellSide + yOffset,"he's frightened")
-                    }
-                    Type.WATER->{
-                        graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset, playerTrainer.ujimonSelected.name + " receives damage because")
-                        graphics.drawText(promptColumn * cellSide + xOffset, (promptRow+1) * cellSide + yOffset,"he's cold")
-                    }
-                    Type.GROUND->{
-                        graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset, playerTrainer.ujimonSelected.name + " receives damage because")
-                        graphics.drawText(promptColumn * cellSide + xOffset, (promptRow+1) * cellSide + yOffset,"he's buried")
-                    }
-                    Type.NORMAL->{
-                        graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset, playerTrainer.ujimonSelected.name + " it's not affected ")
-                        graphics.drawText(promptColumn * cellSide + xOffset, (promptRow+1) * cellSide + yOffset, "by any condition")
-                    }
-                }
+                drawConditionText(true)
             }
             else if(model.lastState == UjimonModel.UjimonState.COMPUTER_CONDITION){
-                when(actualCondition){
-                    Type.FIRE->{
-                        graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset, chosenUjimon!!.name + " receives damage because")
-                        graphics.drawText(promptColumn * cellSide + xOffset, (promptRow+1) * cellSide + yOffset,"he's burned")
-                    }
-                    Type.PLANT->{
-                        graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset, chosenUjimon!!.name + " receives damage because")
-                        graphics.drawText(promptColumn * cellSide + xOffset, (promptRow+1) * cellSide + yOffset, "he's trapped")
-                    }
-                    Type.DARKNESS->{
-                        graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset, chosenUjimon!!.name + " receives damage because")
-                        graphics.drawText(promptColumn * cellSide + xOffset, (promptRow+1) * cellSide + yOffset,"he's frightened")
-                    }
-                    Type.WATER->{
-                        graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset, chosenUjimon!!.name + " receives damage because")
-                        graphics.drawText(promptColumn * cellSide + xOffset, (promptRow+1) * cellSide + yOffset,"he's cold")
-                    }
-                    Type.GROUND->{
-                        graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset, chosenUjimon!!.name + " receives damage because")
-                        graphics.drawText(promptColumn * cellSide + xOffset, (promptRow+1) * cellSide + yOffset,"he's buried")
-                    }
-                    Type.NORMAL->{
-                        graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset, chosenUjimon!!.name + " it's not affected")
-                        graphics.drawText(promptColumn * cellSide + xOffset, (promptRow+1) * cellSide + yOffset,"by any condition")
-                    }
-                }
+                drawConditionText(false)
             }
             else if(model.lastState == UjimonModel.UjimonState.PLAYER_ATTACK) {
                 if(chosenAttack != null) {
@@ -638,12 +593,14 @@ class UjimonController(val width : Int,
     }
 
     private fun drawEndingScreen() {
+        graphics.drawBitmap(Assets.ujidex, 0f, 0f)
+
         if(playerScore <= 0){
-            graphics.drawText(7 * cellSide + xOffset, 6 * cellSide + yOffset, "HAS PERDIDO EL COMBATE")
+            graphics.drawText(6 * cellSide + xOffset, 10 * cellSide + yOffset, "HAS PERDIDO EL COMBATE")
             playDefeated()
         }
         else{
-            graphics.drawText(7 * cellSide + xOffset, 6 * cellSide + yOffset, "HAS GANADO EL COMBATE")
+            graphics.drawText(6 * cellSide + xOffset, 10 * cellSide + yOffset, "HAS GANADO EL COMBATE")
             playVictory()
         }
 
@@ -653,19 +610,33 @@ class UjimonController(val width : Int,
 
         for(ujimon in playerTrainer.ujimonTeam) {
 
-            graphics.drawRect((buttonStartColumnInt + (Assets.UJIMON_SIZE_BUTTON + 2) * i) * cellSide + xOffset, buttonStartRow, Assets.UJIMON_SIZE_BUTTON * cellSide, Assets.UJIMON_SIZE_BUTTON * cellSide, SELECTION_MENU_COLOR)
-            graphics.drawBitmap(ujimon.buttonAsset,(buttonStartColumnInt + (Assets.UJIMON_SIZE_BUTTON + 2) * i) * cellSide + xOffset, buttonStartRow)
-            graphics.drawText((buttonStartColumnInt + (Assets.UJIMON_SIZE_BUTTON + 2) * i) * cellSide + xOffset, (buttonStartRowInt + Assets.UJIMON_SIZE_BUTTON + 1) * cellSide + yOffset, "HP: " + ujimon.healthPoints + " / 1000.0")
+            if( i < 3){
+                graphics.drawRect((buttonStartColumnInt + (Assets.UJIMON_SIZE_BUTTON + 2) * i) * cellSide + xOffset, healthButtonRow * cellSide + yOffset, Assets.UJIMON_SIZE_BUTTON * cellSide, Assets.UJIMON_SIZE_BUTTON * cellSide, SELECTION_MENU_COLOR)
+                graphics.drawBitmap(ujimon.buttonAsset,(buttonStartColumnInt + (Assets.UJIMON_SIZE_BUTTON + 2) * i) * cellSide + xOffset, healthButtonRow * cellSide + yOffset)
+                graphics.drawText((buttonStartColumnInt + (Assets.UJIMON_SIZE_BUTTON + 2) * i) * cellSide + xOffset, (healthButtonRow + Assets.UJIMON_SIZE_BUTTON + 1) * cellSide + yOffset, "HP: " + ujimon.healthPoints + " / 1000.0")
 
-            if(ujimon.dead)
-                graphics.drawBitmap(Assets.deadCross, (buttonStartColumnInt + (Assets.UJIMON_SIZE_BUTTON + 2) * i) * cellSide + xOffset, buttonStartRow)
+                graphics.drawText((5 + 3*i ) * cellSide + xOffset, 11f * cellSide + yOffset,"${ujimon.name}: ${ujimon.healthPoints}")
 
-            graphics.drawText(9 * cellSide + xOffset, (7 + i) * cellSide + yOffset,"${ujimon.name}: ${ujimon.healthPoints}")
+                if(ujimon.dead)
+                    graphics.drawBitmap(Assets.deadCross, (buttonStartColumnInt + (Assets.UJIMON_SIZE_BUTTON + 2) * i) * cellSide + xOffset, healthButtonRow * cellSide + yOffset)
+            }
+            else{
+                graphics.drawRect((buttonStartColumnInt + (Assets.UJIMON_SIZE_BUTTON + 2) * (i-3)) * cellSide + xOffset, (healthButtonRow + Assets.UJIMON_SIZE_BUTTON + 1.5f) * cellSide + yOffset, Assets.UJIMON_SIZE_BUTTON * cellSide, Assets.UJIMON_SIZE_BUTTON * cellSide, SELECTION_MENU_COLOR)
+                graphics.drawBitmap(ujimon.buttonAsset,(buttonStartColumnInt + (Assets.UJIMON_SIZE_BUTTON + 2) * (i-3)) * cellSide + xOffset, (healthButtonRow + Assets.UJIMON_SIZE_BUTTON + 1.5f) * cellSide + yOffset)
+                graphics.drawText((buttonStartColumnInt + (Assets.UJIMON_SIZE_BUTTON + 2) * (i-3)) * cellSide + xOffset, (healthButtonRow + Assets.UJIMON_SIZE_BUTTON + Assets.UJIMON_SIZE_BUTTON + 2.5f) * cellSide + yOffset, "HP: " + ujimon.healthPoints + " / 1000.0")
+
+                graphics.drawText((5 + 3*(i-3) ) * cellSide + xOffset, 12f * cellSide + yOffset,"${ujimon.name}: ${ujimon.healthPoints}")
+
+                if(ujimon.dead)
+                    graphics.drawBitmap(Assets.deadCross, (buttonStartColumnInt + (Assets.UJIMON_SIZE_BUTTON + 2) * (i-3)) * cellSide + xOffset, (healthButtonRow + Assets.UJIMON_SIZE_BUTTON + 1.5f) * cellSide + yOffset)
+            }
+
+
             i++
         }
 
         graphics.setTextSize(20)
-        graphics.drawText(9 * cellSide + xOffset, 13 * cellSide + yOffset, "Total Score: $playerScore")
+        graphics.drawText(12 * cellSide + xOffset, 12.5f * cellSide + yOffset, "Total Score: $playerScore")
         graphics.drawBitmap( Assets.replayButton, battleButtonColumn, battleButtonRow)
     }
 
@@ -788,6 +759,65 @@ class UjimonController(val width : Int,
         }
     }
 
+    private fun drawConditionText(isPlayer : Boolean) {
+        if(isPlayer){
+            when(actualCondition){
+                Type.FIRE->{
+                    graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset, playerTrainer.ujimonSelected.name + " receives damage because")
+                    graphics.drawText(promptColumn * cellSide + xOffset, (promptRow+1) * cellSide + yOffset,"he's burned")
+                }
+                Type.PLANT->{
+                    graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset, playerTrainer.ujimonSelected.name + " receives damage because")
+                    graphics.drawText(promptColumn * cellSide + xOffset, (promptRow+1) * cellSide + yOffset, "he's trapped")
+                }
+                Type.DARKNESS->{
+                    graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset, playerTrainer.ujimonSelected.name + " receives damage because")
+                    graphics.drawText(promptColumn * cellSide + xOffset, (promptRow+1) * cellSide + yOffset,"he's frightened")
+                }
+                Type.WATER->{
+                    graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset, playerTrainer.ujimonSelected.name + " receives damage because")
+                    graphics.drawText(promptColumn * cellSide + xOffset, (promptRow+1) * cellSide + yOffset,"he's cold")
+                }
+                Type.GROUND->{
+                    graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset, playerTrainer.ujimonSelected.name + " receives damage because")
+                    graphics.drawText(promptColumn * cellSide + xOffset, (promptRow+1) * cellSide + yOffset,"he's buried")
+                }
+                Type.NORMAL->{
+                    graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset, playerTrainer.ujimonSelected.name + " it's not affected")
+                    graphics.drawText(promptColumn * cellSide + xOffset, (promptRow+1) * cellSide + yOffset,"by any condition")
+                }
+            }
+        }
+        else {
+            when(actualCondition){
+                Type.FIRE->{
+                    graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset, chosenUjimon!!.name + " receives damage because")
+                    graphics.drawText(promptColumn * cellSide + xOffset, (promptRow+1) * cellSide + yOffset,"he's burned")
+                }
+                Type.PLANT->{
+                    graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset, chosenUjimon!!.name + " receives damage because")
+                    graphics.drawText(promptColumn * cellSide + xOffset, (promptRow+1) * cellSide + yOffset, "he's trapped")
+                }
+                Type.DARKNESS->{
+                    graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset, chosenUjimon!!.name + " receives damage because")
+                    graphics.drawText(promptColumn * cellSide + xOffset, (promptRow+1) * cellSide + yOffset,"he's frightened")
+                }
+                Type.WATER->{
+                    graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset, chosenUjimon!!.name + " receives damage because")
+                    graphics.drawText(promptColumn * cellSide + xOffset, (promptRow+1) * cellSide + yOffset,"he's cold")
+                }
+                Type.GROUND->{
+                    graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset, chosenUjimon!!.name + " receives damage because")
+                    graphics.drawText(promptColumn * cellSide + xOffset, (promptRow+1) * cellSide + yOffset,"he's buried")
+                }
+                Type.NORMAL->{
+                    graphics.drawText(promptColumn * cellSide + xOffset, promptRow * cellSide + yOffset, chosenUjimon!!.name + " it's not affected")
+                    graphics.drawText(promptColumn * cellSide + xOffset, (promptRow+1) * cellSide + yOffset,"by any condition")
+                }
+            }
+        }
+    }
+
     private fun prepareSoundMedia(contex: Context) {
         val attributes = AudioAttributes.Builder()
                 .setUsage(AudioAttributes.USAGE_GAME)
@@ -838,12 +868,12 @@ class UjimonController(val width : Int,
 
     override fun playVictory() {
         musicPlayer!!.release()
-        soundPool.play(victoryId, 1f, 1f, 1, 1, 1f)
+        soundPool.play(victoryId, 1f, 1f, 1, 0, 1f)
     }
 
     override fun playDefeated() {
         musicPlayer!!.release()
-        soundPool.play(defeatId, 1f, 1f, 1, 1, 1f)
+        soundPool.play(defeatId, 1f, 1f, 1, 0, 1f)
     }
 
     override fun playNormalAttackSound() {

@@ -110,7 +110,7 @@ class Ujimon(var healthPoints: Float, val name: String, val imageAsset: Bitmap?,
             if(condition.first<=0)
                 condition = Pair(0, Type.NORMAL)
         }
-        if(healthPoints <= 0) {
+        if(healthPoints <= 0f) {
             dead = true
             healthPoints = 0f
         }

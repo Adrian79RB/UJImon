@@ -30,6 +30,7 @@ object Assets {
     var replayButton : Bitmap? = null
     var ujiball : Bitmap? = null
     var emptyujiball : Bitmap? = null
+    var ujidex : Bitmap? = null
 
     private var plant : SpriteSheet? = null
     var plantAttack : AnimatedBitmap? = null
@@ -162,6 +163,9 @@ object Assets {
 
         emptyujiball?.recycle()
         emptyujiball = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(resources, R.drawable.empty_ujiball), cellSize, cellSize, true)
+
+        ujidex?.recycle()
+        ujidex = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(resources, R.drawable.ujidex), cellSize * BATTLEFIELD_WIDTH, cellSize * BATTLEFIELD_HEIGHT, true )
 
         val plantAttackFrames = ArrayList<Bitmap>()
         plantAttack?.recycle()

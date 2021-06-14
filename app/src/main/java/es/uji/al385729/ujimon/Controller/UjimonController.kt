@@ -52,12 +52,12 @@ class UjimonController(val width : Int,
     private val cellSideInt = cellSide.toInt()
     private val xOffset : Float = (width - TOTAL_CELL_WIDTH * cellSide) / 2.0f
     private val yOffset : Float = (height - TOTAL_CELL_HEIGHT * cellSide) / 2.0f
-    private val buttonStartColumn = 2 * cellSide + xOffset
-    private val buttonStartColumnInt = 2
-    private val buttonStartRow = 2 * cellSide + yOffset
-    private val buttonStartRowInt = 2
-    private val buttonStartSecondRow = 7 * cellSide + yOffset
-    private val buttonStartSecondRowInt = 7
+    private val buttonStartColumn = 7 * cellSide + xOffset
+    private val buttonStartColumnInt = 7
+    private val buttonStartRow = 3 * cellSide + yOffset
+    private val buttonStartRowInt = 3
+    private val buttonStartSecondRow = 6 * cellSide + yOffset
+    private val buttonStartSecondRowInt = 6
     private val healthButtonRow = 6
     private val battleButtonRowInt = 11
     private val battleButtonColInt = 18
@@ -65,7 +65,7 @@ class UjimonController(val width : Int,
     private val battlePlayerUjimonCol = 3
     private val battleEnemyUjimonRow =2
     private val battleEnemuUjimonCol = 15
-    private val playerTeamStartColumnInt = 14
+    private val playerTeamStartColumnInt = 7
     private var ujimonChoosen = 0
     private var gameLevel = 1
     private val attackButtonCol = 11
@@ -371,8 +371,9 @@ class UjimonController(val width : Int,
         graphics.setTextSize(20)
 
         if(model.state == UjimonModel.UjimonState.UJIMON_SELECTION || model.state == UjimonModel.UjimonState.UJIMON_SELECTED){
-            graphics.drawText(4 * cellSide + xOffset, cellSide + yOffset, "Choose your Ujimon Team")
-            graphics.drawText((playerTeamStartColumnInt + 3) * cellSide + xOffset, buttonStartRow + 1, "Your team")
+            graphics.drawBitmap(Assets.ujidex, 0f, 0f)
+            graphics.drawText(7 * cellSide + xOffset, 2 * cellSide + yOffset, "Choose your Ujimon Team")
+            graphics.drawText((playerTeamStartColumnInt + 3) * cellSide + xOffset, (buttonStartSecondRowInt + Assets.UJIMON_SIZE_BUTTON + 2) * cellSide + yOffset, "Your team")
             drawUjimonButtons()
 
             if(model.state == UjimonModel.UjimonState.UJIMON_SELECTED)
@@ -445,6 +446,7 @@ class UjimonController(val width : Int,
         }
 
         if(model.state == UjimonModel.UjimonState.HEALTH_HEALING) {
+            graphics.drawBitmap(Assets.ujidex, 0f, 0f)
             graphics.setTextColor(MENU_TEXT_COLOR)
             if(ujimonHealed)
                 graphics.drawText(4 * cellSide + xOffset, 4 * cellSide + yOffset, "Choose an Ujimon to go to the next battle")
@@ -467,7 +469,7 @@ class UjimonController(val width : Int,
             if(i < 5) {
                 if(model.ujimonAlreadySelected(ujimon, playerTrainer.ujimonTeam)) {
                     graphics.drawRect((buttonStartColumnInt + Assets.UJIMON_SIZE_BUTTON * i) * cellSide + xOffset, buttonStartRow, Assets.UJIMON_SIZE_BUTTON * cellSide, Assets.UJIMON_SIZE_BUTTON * cellSide, BUTTON_SELECTED_COLOR)
-                    graphics.drawBitmap(ujimon.buttonAsset ,(playerTeamStartColumnInt + Assets.UJIMON_SIZE_BUTTON * k)* cellSide + xOffset, (buttonStartRowInt + 2) * cellSide + yOffset)
+                    graphics.drawBitmap(ujimon.buttonAsset ,(playerTeamStartColumnInt + Assets.UJIMON_SIZE_BUTTON * k)* cellSide + xOffset, (buttonStartSecondRowInt + Assets.UJIMON_SIZE_BUTTON + 3) * cellSide + yOffset)
                     k++
                 }
                 else
@@ -478,7 +480,7 @@ class UjimonController(val width : Int,
             else {
                 if (model.ujimonAlreadySelected(ujimon, playerTrainer.ujimonTeam)) {
                     graphics.drawRect((buttonStartColumnInt + Assets.UJIMON_SIZE_BUTTON * (i - 5)) * cellSide + xOffset, buttonStartSecondRow, Assets.UJIMON_SIZE_BUTTON * cellSide, Assets.UJIMON_SIZE_BUTTON * cellSide, BUTTON_SELECTED_COLOR)
-                    graphics.drawBitmap(ujimon.buttonAsset, (playerTeamStartColumnInt + Assets.UJIMON_SIZE_BUTTON * k) * cellSide + xOffset, (buttonStartRowInt + 2) * cellSide + yOffset)
+                    graphics.drawBitmap(ujimon.buttonAsset, (playerTeamStartColumnInt + Assets.UJIMON_SIZE_BUTTON * k) * cellSide + xOffset, (buttonStartSecondRowInt + Assets.UJIMON_SIZE_BUTTON + 3) * cellSide + yOffset)
                     k++
                 } else
                     graphics.drawRect((buttonStartColumnInt + Assets.UJIMON_SIZE_BUTTON * (i - 5)) * cellSide + xOffset, buttonStartSecondRow, Assets.UJIMON_SIZE_BUTTON * cellSide, Assets.UJIMON_SIZE_BUTTON * cellSide, SELECTION_MENU_COLOR)
